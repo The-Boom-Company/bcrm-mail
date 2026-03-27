@@ -513,9 +513,9 @@
     "app_title": "Webmail",
     "reconnecting": "Connection lost. Attempting to reconnect…",
     "rate_limited_title": "Server authentication is temporarily rate limited.",
-    "rate_limited_detail": "Bulwark has paused background requests to avoid lockout. Retrying in {seconds}s.",
+    "rate_limited_detail": "BCRM Mail has paused background requests to avoid lockout. Retrying in {seconds}s.",
     "rate_limited_action_title": "Request paused to avoid lockout.",
-    "rate_limited_action_detail": "Bulwark is waiting for the server cooldown to end before sending more authenticated requests. Try again in {seconds}s."
+    "rate_limited_action_detail": "BCRM Mail is waiting for the server cooldown to end before sending more authenticated requests. Try again in {seconds}s."
   },
   "notifications": {
     "email_sent": "Email sent successfully",
@@ -2169,7 +2169,7 @@
     "start_tour": "Start Tour"
   },
   "demo_welcome": {
-    "title": "Welcome to Bulwark Mail",
+    "title": "Welcome to BCRM Mail",
     "description": "Explore a fully-featured webmail client — right in your browser. All data stays on your device, so feel free to test everything.",
     "feature_email": "Read & compose email",
     "feature_organize": "Tags, stars & folders",

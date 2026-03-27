@@ -375,7 +375,7 @@ export function EmailSettings() {
       )}
 
       {/* Default Mail Program */}
-      <SettingItem label={t('default_mail_program.label')} description={t('default_mail_program.description', { appName: appName || 'Bulwark' })}>
+      <SettingItem label={t('default_mail_program.label')} description={t('default_mail_program.description', { appName: appName || 'BCRM Mail' })}>
         <div className="flex flex-col items-end gap-1">
           <button
             onClick={handleSetDefaultMailProgram}

@@ -1,16 +1,16 @@
 {
-  "name": "bulwark-webmail",
+  "name": "bcrm-mail",
   "version": "1.4.9",
-  "description": "Bulwark Webmail — a modern webmail client built for Stalwart Mail Server",
-  "author": "Bulwark Webmail <bulwark@rbm.systems>",
+  "description": "BCRM Mail — webmail client for Boom CRM, based on Bulwark Webmail",
+  "author": "The Boom Company",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bulwarkmail/webmail.git"
+    "url": "git+https://github.com/The-Boom-Company/bcrm-mail.git"
   },
-  "homepage": "https://github.com/bulwarkmail/webmail",
+  "homepage": "https://github.com/The-Boom-Company/bcrm-mail",
   "bugs": {
-    "url": "https://github.com/bulwarkmail/webmail/issues"
+    "url": "https://github.com/The-Boom-Company/bcrm-mail/issues"
   },
   "keywords": [
     "jmap",

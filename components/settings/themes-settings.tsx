@@ -76,7 +76,7 @@ export function ThemesSettings() {
         {/* Default theme card */}
         <ThemeCard
           name="Default"
-          author="Bulwark"
+          author="BCRM"
           isActive={activeThemeId === null}
           isBuiltIn
           isDefault={!themePolicy.defaultThemeId}
