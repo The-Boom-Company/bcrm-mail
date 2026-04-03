@@ -34,42 +34,46 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
   useEffect(() => {
     if (!embeddedMode || !isEmbedded()) return;
 
+    const handleCredentials = (token: string) => {
+      if (loginInFlight.current) return;
+
+      const creds = decodeBasicToken(token);
+      if (!creds) {
+        debug.error("Invalid Basic auth token from portal");
+        notifyParent("sso:auth-failure", { error: "invalid_token" });
+        return;
+      }
+
+      loginInFlight.current = true;
+
+      fetchConfig()
+        .then((config) => {
+          if (!config.jmapServerUrl) {
+            throw new Error("JMAP server URL not configured");
+          }
+          return login(config.jmapServerUrl, creds.username, creds.password);
+        })
+        .then((success) => {
+          if (success) {
+            notifyParent("sso:auth-success", { username: creds.username });
+          } else {
+            notifyParent("sso:auth-failure", { error: "login_failed" });
+          }
+        })
+        .catch((err) => {
+          debug.error("Portal credential login failed:", err);
+          notifyParent("sso:auth-failure", { error: "login_failed" });
+        })
+        .finally(() => {
+          loginInFlight.current = false;
+        });
+    };
+
     const unsubscribe = listenFromParent((msg) => {
       switch (msg.type) {
         case "portal:set-credentials": {
           const token = msg.token as string | undefined;
-          if (!token || loginInFlight.current) break;
-
-          const creds = decodeBasicToken(token);
-          if (!creds) {
-            debug.error("Invalid Basic auth token from portal");
-            notifyParent("sso:auth-failure", { error: "invalid_token" });
-            break;
-          }
-
-          loginInFlight.current = true;
-
-          fetchConfig()
-            .then((config) => {
-              if (!config.jmapServerUrl) {
-                throw new Error("JMAP server URL not configured");
-              }
-              return login(config.jmapServerUrl, creds.username, creds.password);
-            })
-            .then((success) => {
-              if (success) {
-                notifyParent("sso:auth-success", { username: creds.username });
-              } else {
-                notifyParent("sso:auth-failure", { error: "login_failed" });
-              }
-            })
-            .catch((err) => {
-              debug.error("Portal credential login failed:", err);
-              notifyParent("sso:auth-failure", { error: "login_failed" });
-            })
-            .finally(() => {
-              loginInFlight.current = false;
-            });
+          if (token) handleCredentials(token);
           break;
         }
 
@@ -85,6 +89,8 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
           break;
       }
     }, parentOrigin || undefined);
+
+    notifyParent("bcrm-mail:ready");
 
     return unsubscribe;
   }, [embeddedMode, parentOrigin, logout, login]);
