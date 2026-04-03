@@ -264,6 +264,17 @@ export default function LoginPage() {
     );
   }
 
+  if (_embeddedMode && !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/30">
+        <div className="w-full max-w-sm mx-auto px-4 text-center" role="status">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">{t("loading")}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!serverUrl && !demoMode) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/30">
