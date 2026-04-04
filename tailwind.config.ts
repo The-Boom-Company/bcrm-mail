@@ -12,13 +12,13 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "-apple-system",
-          "BlinkMacSystemFont",
+          "var(--font-inter)",
           "Inter",
           "system-ui",
+          "-apple-system",
           "sans-serif",
         ],
-        mono: ["JetBrains Mono", "monospace"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
       },
       animation: {
         "fade-in": "fade-in 0.2s ease-out",

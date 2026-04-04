@@ -1109,7 +1109,7 @@ export default function Home() {
         <div className="flex flex-1 overflow-hidden">
         {/* Desktop Navigation Rail */}
         {!isMobile && !isTablet && (
-          <div className="w-14 bg-secondary flex flex-col flex-shrink-0" style={{ borderRight: '1px solid rgba(128, 128, 128, 0.3)' }}>
+          <div className="w-14 bg-secondary flex flex-col flex-shrink-0 border-r border-border">
             <NavigationRail
               collapsed
               quota={quota}

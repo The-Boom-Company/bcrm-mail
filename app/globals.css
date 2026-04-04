@@ -5,56 +5,56 @@
 :root {
   font-size: var(--font-size-base);
 
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-ring: #94a3b8;
-  --color-background: #ffffff;
+  --color-border: #e2e0f3;
+  --color-input: #e2e0f3;
+  --color-ring: #6366f1;
+  --color-background: #faf8ff;
   --color-foreground: #0f172a;
-  --color-primary: #3b82f6;
+  --color-primary: #6366f1;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #f8fafc;
+  --color-secondary: #f5f3ff;
   --color-secondary-foreground: #0f172a;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
-  --color-accent: #dbeafe;
-  --color-accent-foreground: #1e40af;
+  --color-muted: #f0eef9;
+  --color-muted-foreground: #6d758c;
+  --color-accent: #ede9fe;
+  --color-accent-foreground: #3730a3;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
   --color-popover: #ffffff;
   --color-popover-foreground: #0f172a;
 
   /* Sidebar */
-  --color-sidebar: #f8fafc;
+  --color-sidebar: #f5f3ff;
   --color-sidebar-foreground: #0f172a;
-  --color-sidebar-border: #e2e8f0;
-  --color-sidebar-accent: #f1f5f9;
-  --color-sidebar-accent-foreground: #0f172a;
+  --color-sidebar-border: #e2e0f3;
+  --color-sidebar-accent: #ede9fe;
+  --color-sidebar-accent-foreground: #3730a3;
 
   /* Card */
   --color-card: #ffffff;
   --color-card-foreground: #0f172a;
 
   /* Semantic status colors */
-  --color-success: #22c55e;
+  --color-success: #34d399;
   --color-success-foreground: #ffffff;
-  --color-warning: #eab308;
+  --color-warning: #f8a010;
   --color-warning-foreground: #ffffff;
-  --color-info: #3b82f6;
+  --color-info: #6366f1;
   --color-info-foreground: #ffffff;
 
   /* Selection states */
-  --color-selection: #dbeafe;
-  --color-selection-foreground: #1e40af;
+  --color-selection: #ede9fe;
+  --color-selection-foreground: #3730a3;
 
   /* Unread indicator */
-  --color-unread: #3b82f6;
+  --color-unread: #6366f1;
 
   /* Chart colors */
-  --color-chart-1: #3b82f6;
-  --color-chart-2: #22c55e;
-  --color-chart-3: #f59e0b;
-  --color-chart-4: #ef4444;
-  --color-chart-5: #8b5cf6;
+  --color-chart-1: #6366f1;
+  --color-chart-2: #34d399;
+  --color-chart-3: #f8a010;
+  --color-chart-4: #ff6e84;
+  --color-chart-5: #a3a6ff;
 
   /* Settings variables */
   --font-size-base: 16px;
@@ -70,56 +70,56 @@
 }
 
 .dark {
-  --color-border: #262626;
-  --color-input: #262626;
-  --color-ring: #d4d4d4;
-  --color-background: #0a0a0a;
-  --color-foreground: #fafafa;
-  --color-primary: #fafafa;
-  --color-primary-foreground: #171717;
-  --color-secondary: #262626;
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #262626;
-  --color-muted-foreground: #a3a3a3;
-  --color-accent: #1e3a8a;
-  --color-accent-foreground: #dbeafe;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #fafafa;
-  --color-popover: #1c1c1c;
-  --color-popover-foreground: #fafafa;
+  --color-border: #1e2a42;
+  --color-input: #192540;
+  --color-ring: #a3a6ff;
+  --color-background: #060e20;
+  --color-foreground: #dee5ff;
+  --color-primary: #a3a6ff;
+  --color-primary-foreground: #0f00a4;
+  --color-secondary: #0f1930;
+  --color-secondary-foreground: #dee5ff;
+  --color-muted: #141f38;
+  --color-muted-foreground: #a3aac4;
+  --color-accent: #192540;
+  --color-accent-foreground: #dee5ff;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-popover: #0f1930;
+  --color-popover-foreground: #dee5ff;
 
   /* Sidebar */
-  --color-sidebar: #0a0a0a;
-  --color-sidebar-foreground: #fafafa;
-  --color-sidebar-border: #262626;
-  --color-sidebar-accent: #1a1a1a;
-  --color-sidebar-accent-foreground: #fafafa;
+  --color-sidebar: #091328;
+  --color-sidebar-foreground: #dee5ff;
+  --color-sidebar-border: #1e2a42;
+  --color-sidebar-accent: #141f38;
+  --color-sidebar-accent-foreground: #dee5ff;
 
   /* Card */
-  --color-card: #141414;
-  --color-card-foreground: #fafafa;
+  --color-card: #0f1930;
+  --color-card-foreground: #dee5ff;
 
   /* Semantic status colors */
-  --color-success: #16a34a;
+  --color-success: #34d399;
   --color-success-foreground: #ffffff;
-  --color-warning: #ca8a04;
+  --color-warning: #f8a010;
   --color-warning-foreground: #ffffff;
-  --color-info: #60a5fa;
+  --color-info: #a3a6ff;
   --color-info-foreground: #ffffff;
 
   /* Selection states */
-  --color-selection: rgba(59, 130, 246, 0.25);
-  --color-selection-foreground: #93c5fd;
+  --color-selection: rgba(163, 166, 255, 0.2);
+  --color-selection-foreground: #c7c9ff;
 
   /* Unread indicator */
-  --color-unread: #60a5fa;
+  --color-unread: #a3a6ff;
 
   /* Chart colors */
-  --color-chart-1: #60a5fa;
-  --color-chart-2: #4ade80;
-  --color-chart-3: #fbbf24;
-  --color-chart-4: #f87171;
-  --color-chart-5: #a78bfa;
+  --color-chart-1: #a3a6ff;
+  --color-chart-2: #34d399;
+  --color-chart-3: #f8a010;
+  --color-chart-4: #ff6e84;
+  --color-chart-5: #c7c9ff;
 }
 
 @theme inline {
@@ -171,18 +171,22 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family:
+    var(--font-inter),
+    "Inter",
     system-ui,
     -apple-system,
     sans-serif;
   font-feature-settings:
     "rlig" 1,
     "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Minimalist scrollbar */
+/* Premium scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -190,12 +194,24 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-border);
+  background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
   border-radius: 9999px;
+  transition: background-color 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-muted-foreground);
+  background-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-primary) 20%, transparent) transparent;
+  }
 }
 
 /* Enhanced Email Content Styling */
