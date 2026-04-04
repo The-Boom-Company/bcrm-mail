@@ -12,6 +12,7 @@ import { toast } from "@/stores/toast-store";
 import { sanitizeEmailHtml } from "@/lib/email-sanitization";
 import { useAuthStore } from "@/stores/auth-store";
 import { useIdentityStore } from "@/stores/identity-store";
+import type { Identity } from "@/lib/jmap/types";
 import { useSmimeStore } from "@/stores/smime-store";
 import { useEmailStore } from "@/stores/email-store";
 import { useSettingsStore } from "@/stores/settings-store";
