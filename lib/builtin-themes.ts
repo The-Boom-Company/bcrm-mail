@@ -328,7 +328,476 @@ const solarizedCSS = `
   --color-chart-5: #6c71c4;
 }`;
 
+// ---------------------------------------------------------------------------
+// BCRM branded palettes (synced with CRM ThemePalettes.ts)
+// ---------------------------------------------------------------------------
+
+const bcrmEmeraldCSS = `
+:root {
+  --color-background: #f7fdf9;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #059669;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #ecfdf5;
+  --color-muted-foreground: #527a68;
+  --color-accent: #d1fae5;
+  --color-accent-foreground: #064e3b;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #c6e7d5;
+  --color-input: #c6e7d5;
+  --color-ring: #059669;
+  --color-sidebar: #f0fdf4;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-border: #c6e7d5;
+  --color-sidebar-accent: #d1fae5;
+  --color-sidebar-accent-foreground: #064e3b;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #059669;
+  --color-info-foreground: #ffffff;
+  --color-selection: #d1fae5;
+  --color-selection-foreground: #064e3b;
+  --color-unread: #059669;
+  --color-chart-1: #059669;
+  --color-chart-2: #f59e0b;
+  --color-chart-3: #ec4899;
+  --color-chart-4: #047857;
+  --color-chart-5: #6ee7b7;
+}
+.dark {
+  --color-background: #04160e;
+  --color-foreground: #d1fae5;
+  --color-card: #0a2718;
+  --color-card-foreground: #d1fae5;
+  --color-popover: #0f3021;
+  --color-popover-foreground: #d1fae5;
+  --color-primary: #34d399;
+  --color-primary-foreground: #022c22;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #113325;
+  --color-muted-foreground: #86c4a5;
+  --color-accent: #153d2b;
+  --color-accent-foreground: #d1fae5;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #1a4432;
+  --color-input: #153d2b;
+  --color-ring: #34d399;
+  --color-sidebar: #04160e;
+  --color-sidebar-foreground: #d1fae5;
+  --color-sidebar-border: #1a4432;
+  --color-sidebar-accent: #113325;
+  --color-sidebar-accent-foreground: #d1fae5;
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #34d399;
+  --color-info-foreground: #ffffff;
+  --color-selection: rgba(52, 211, 153, 0.2);
+  --color-selection-foreground: #6ee7b7;
+  --color-unread: #34d399;
+  --color-chart-1: #34d399;
+  --color-chart-2: #f8a010;
+  --color-chart-3: #ff9dd1;
+  --color-chart-4: #10b981;
+  --color-chart-5: #6ee7b7;
+}`;
+
+const bcrmRoseCSS = `
+:root {
+  --color-background: #fff5f7;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #e11d48;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #fce7f3;
+  --color-muted-foreground: #7d5068;
+  --color-accent: #fce7f3;
+  --color-accent-foreground: #881337;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #f3d1de;
+  --color-input: #f3d1de;
+  --color-ring: #e11d48;
+  --color-sidebar: #fff1f5;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-border: #f3d1de;
+  --color-sidebar-accent: #fce7f3;
+  --color-sidebar-accent-foreground: #881337;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #e11d48;
+  --color-info-foreground: #ffffff;
+  --color-selection: #fce7f3;
+  --color-selection-foreground: #881337;
+  --color-unread: #e11d48;
+  --color-chart-1: #e11d48;
+  --color-chart-2: #f59e0b;
+  --color-chart-3: #8b5cf6;
+  --color-chart-4: #be123c;
+  --color-chart-5: #fda4af;
+}
+.dark {
+  --color-background: #1a0510;
+  --color-foreground: #fce7f3;
+  --color-card: #2a0a1a;
+  --color-card-foreground: #fce7f3;
+  --color-popover: #320f22;
+  --color-popover-foreground: #fce7f3;
+  --color-primary: #fb7185;
+  --color-primary-foreground: #4c0519;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #2d1020;
+  --color-muted-foreground: #d4849a;
+  --color-accent: #3a1428;
+  --color-accent-foreground: #fce7f3;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #401830;
+  --color-input: #3a1428;
+  --color-ring: #fb7185;
+  --color-sidebar: #1a0510;
+  --color-sidebar-foreground: #fce7f3;
+  --color-sidebar-border: #401830;
+  --color-sidebar-accent: #2d1020;
+  --color-sidebar-accent-foreground: #fce7f3;
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #fb7185;
+  --color-info-foreground: #ffffff;
+  --color-selection: rgba(251, 113, 133, 0.2);
+  --color-selection-foreground: #fda4af;
+  --color-unread: #fb7185;
+  --color-chart-1: #fb7185;
+  --color-chart-2: #f8a010;
+  --color-chart-3: #c084fc;
+  --color-chart-4: #f43f5e;
+  --color-chart-5: #fda4af;
+}`;
+
+const bcrmOceanCSS = `
+:root {
+  --color-background: #f5fcff;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #0891b2;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #e0f7fa;
+  --color-muted-foreground: #4b7580;
+  --color-accent: #cffafe;
+  --color-accent-foreground: #155e75;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #bae6f0;
+  --color-input: #bae6f0;
+  --color-ring: #0891b2;
+  --color-sidebar: #ecfeff;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-border: #bae6f0;
+  --color-sidebar-accent: #cffafe;
+  --color-sidebar-accent-foreground: #155e75;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #0891b2;
+  --color-info-foreground: #ffffff;
+  --color-selection: #cffafe;
+  --color-selection-foreground: #155e75;
+  --color-unread: #0891b2;
+  --color-chart-1: #0891b2;
+  --color-chart-2: #f59e0b;
+  --color-chart-3: #ec4899;
+  --color-chart-4: #0e7490;
+  --color-chart-5: #67e8f9;
+}
+.dark {
+  --color-background: #031c28;
+  --color-foreground: #cffafe;
+  --color-card: #07293a;
+  --color-card-foreground: #cffafe;
+  --color-popover: #0c3548;
+  --color-popover-foreground: #cffafe;
+  --color-primary: #22d3ee;
+  --color-primary-foreground: #052e3a;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #0c3548;
+  --color-muted-foreground: #7ec8d6;
+  --color-accent: #12404f;
+  --color-accent-foreground: #cffafe;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #184a5a;
+  --color-input: #12404f;
+  --color-ring: #22d3ee;
+  --color-sidebar: #031c28;
+  --color-sidebar-foreground: #cffafe;
+  --color-sidebar-border: #184a5a;
+  --color-sidebar-accent: #0c3548;
+  --color-sidebar-accent-foreground: #cffafe;
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #22d3ee;
+  --color-info-foreground: #ffffff;
+  --color-selection: rgba(34, 211, 238, 0.2);
+  --color-selection-foreground: #67e8f9;
+  --color-unread: #22d3ee;
+  --color-chart-1: #22d3ee;
+  --color-chart-2: #f8a010;
+  --color-chart-3: #ff9dd1;
+  --color-chart-4: #06b6d4;
+  --color-chart-5: #67e8f9;
+}`;
+
+const bcrmAmberCSS = `
+:root {
+  --color-background: #fffdf5;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #d97706;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #6366f1;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #fef3c7;
+  --color-muted-foreground: #7c6530;
+  --color-accent: #fde68a;
+  --color-accent-foreground: #78350f;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #ede0b8;
+  --color-input: #ede0b8;
+  --color-ring: #d97706;
+  --color-sidebar: #fffbeb;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-border: #ede0b8;
+  --color-sidebar-accent: #fef3c7;
+  --color-sidebar-accent-foreground: #78350f;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-foreground: #ffffff;
+  --color-info: #d97706;
+  --color-info-foreground: #ffffff;
+  --color-selection: #fef3c7;
+  --color-selection-foreground: #78350f;
+  --color-unread: #d97706;
+  --color-chart-1: #d97706;
+  --color-chart-2: #6366f1;
+  --color-chart-3: #ec4899;
+  --color-chart-4: #b45309;
+  --color-chart-5: #fcd34d;
+}
+.dark {
+  --color-background: #1a1408;
+  --color-foreground: #fef3c7;
+  --color-card: #2a200e;
+  --color-card-foreground: #fef3c7;
+  --color-popover: #332812;
+  --color-popover-foreground: #fef3c7;
+  --color-primary: #fbbf24;
+  --color-primary-foreground: #422006;
+  --color-secondary: #a3a6ff;
+  --color-secondary-foreground: #0f00a4;
+  --color-muted: #302610;
+  --color-muted-foreground: #c4a860;
+  --color-accent: #3d3118;
+  --color-accent-foreground: #fef3c7;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #4a3a1e;
+  --color-input: #3d3118;
+  --color-ring: #fbbf24;
+  --color-sidebar: #1a1408;
+  --color-sidebar-foreground: #fef3c7;
+  --color-sidebar-border: #4a3a1e;
+  --color-sidebar-accent: #302610;
+  --color-sidebar-accent-foreground: #fef3c7;
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #ffffff;
+  --color-info: #fbbf24;
+  --color-info-foreground: #ffffff;
+  --color-selection: rgba(251, 191, 36, 0.2);
+  --color-selection-foreground: #fcd34d;
+  --color-unread: #fbbf24;
+  --color-chart-1: #fbbf24;
+  --color-chart-2: #a3a6ff;
+  --color-chart-3: #ff9dd1;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #fcd34d;
+}`;
+
+const bcrmSlateCSS = `
+:root {
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #475569;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #e2e8f0;
+  --color-accent-foreground: #1e293b;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #475569;
+  --color-sidebar: #f1f5f9;
+  --color-sidebar-foreground: #0f172a;
+  --color-sidebar-border: #e2e8f0;
+  --color-sidebar-accent: #e2e8f0;
+  --color-sidebar-accent-foreground: #1e293b;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #475569;
+  --color-info-foreground: #ffffff;
+  --color-selection: #e2e8f0;
+  --color-selection-foreground: #1e293b;
+  --color-unread: #475569;
+  --color-chart-1: #475569;
+  --color-chart-2: #f59e0b;
+  --color-chart-3: #ec4899;
+  --color-chart-4: #334155;
+  --color-chart-5: #94a3b8;
+}
+.dark {
+  --color-background: #0c1120;
+  --color-foreground: #e2e8f0;
+  --color-card: #131c2e;
+  --color-card-foreground: #e2e8f0;
+  --color-popover: #1a2438;
+  --color-popover-foreground: #e2e8f0;
+  --color-primary: #94a3b8;
+  --color-primary-foreground: #0f172a;
+  --color-secondary: #f8a010;
+  --color-secondary-foreground: #4a2c00;
+  --color-muted: #1a2438;
+  --color-muted-foreground: #7a8ba1;
+  --color-accent: #1e293b;
+  --color-accent-foreground: #e2e8f0;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #253347;
+  --color-input: #1e293b;
+  --color-ring: #94a3b8;
+  --color-sidebar: #0c1120;
+  --color-sidebar-foreground: #e2e8f0;
+  --color-sidebar-border: #253347;
+  --color-sidebar-accent: #1a2438;
+  --color-sidebar-accent-foreground: #e2e8f0;
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f8a010;
+  --color-warning-foreground: #ffffff;
+  --color-info: #94a3b8;
+  --color-info-foreground: #ffffff;
+  --color-selection: rgba(148, 163, 184, 0.2);
+  --color-selection-foreground: #cbd5e1;
+  --color-unread: #94a3b8;
+  --color-chart-1: #94a3b8;
+  --color-chart-2: #f8a010;
+  --color-chart-3: #ff9dd1;
+  --color-chart-4: #64748b;
+  --color-chart-5: #cbd5e1;
+}`;
+
 export const BUILTIN_THEMES: InstalledTheme[] = [
+  {
+    id: 'bcrm-emerald',
+    name: 'BCRM Emerald',
+    version: '1.0.0',
+    author: 'BCRM',
+    description: 'Nature-inspired green tones with teal accents',
+    css: bcrmEmeraldCSS,
+    variants: ['light', 'dark'],
+    enabled: true,
+    builtIn: true,
+  },
+  {
+    id: 'bcrm-rose',
+    name: 'BCRM Rose',
+    version: '1.0.0',
+    author: 'BCRM',
+    description: 'Warm pink tones with coral accents',
+    css: bcrmRoseCSS,
+    variants: ['light', 'dark'],
+    enabled: true,
+    builtIn: true,
+  },
+  {
+    id: 'bcrm-ocean',
+    name: 'BCRM Ocean',
+    version: '1.0.0',
+    author: 'BCRM',
+    description: 'Cool cyan tones with deep navy dark mode',
+    css: bcrmOceanCSS,
+    variants: ['light', 'dark'],
+    enabled: true,
+    builtIn: true,
+  },
+  {
+    id: 'bcrm-amber',
+    name: 'BCRM Amber',
+    version: '1.0.0',
+    author: 'BCRM',
+    description: 'Warm amber and earth tones',
+    css: bcrmAmberCSS,
+    variants: ['light', 'dark'],
+    enabled: true,
+    builtIn: true,
+  },
+  {
+    id: 'bcrm-slate',
+    name: 'BCRM Slate',
+    version: '1.0.0',
+    author: 'BCRM',
+    description: 'Professional neutral blue-gray tones',
+    css: bcrmSlateCSS,
+    variants: ['light', 'dark'],
+    enabled: true,
+    builtIn: true,
+  },
   {
     id: 'builtin-qui',
     name: 'Qui',

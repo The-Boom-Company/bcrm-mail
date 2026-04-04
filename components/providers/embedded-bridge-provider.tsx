@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { isEmbedded, listenFromParent, notifyParent } from "@/lib/iframe-bridge";
 import { getPathPrefix, getLocaleFromPath } from "@/lib/browser-navigation";
 import { useAuthStore } from "@/stores/auth-store";
+import { useThemeStore } from "@/stores/theme-store";
 import { useConfig, fetchConfig } from "@/hooks/use-config";
 import { debug } from "@/lib/debug";
 
@@ -155,6 +156,19 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
         case "sso:trigger-logout":
           logout();
           break;
+
+        case "bcrm:set-palette": {
+          const paletteId = msg.paletteId as string | null | undefined;
+          const themeId = paletteId ? `bcrm-${paletteId}` : null;
+          useThemeStore.getState().activateTheme(themeId);
+          break;
+        }
+
+        case "bcrm:set-appearance": {
+          const mode = msg.mode as "light" | "dark" | undefined;
+          if (mode) useThemeStore.getState().setTheme(mode);
+          break;
+        }
       }
     }, parentOrigin || undefined);
 
