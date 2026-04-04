@@ -220,9 +220,9 @@ export function EmailComposer({
     restoreFocus: true,
   });
 
-  const { client } = useAuthStore();
+  const { client, username } = useAuthStore();
   const identities = useIdentityStore((s) => s.identities);
-  const primaryIdentity = identities[0] ?? null;
+  const primaryIdentity = identities[0] ?? (username ? { id: '_fallback', name: '', email: username } as Identity : null);
   const currentIdentity = selectedIdentityId
     ? identities.find((identity) => identity.id === selectedIdentityId) || primaryIdentity
     : primaryIdentity;

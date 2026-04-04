@@ -523,8 +523,15 @@ export default function Home() {
     if (!draft.bodyValues) {
       const mailbox = mailboxes.find(mb => mb.id === selectedMailbox);
       const accountId = mailbox?.isShared ? mailbox.accountId : undefined;
-      const fullDraft = await client.getEmail(draft.id, accountId);
-      if (!fullDraft) return;
+      let fullDraft = await client.getEmail(draft.id, accountId);
+      if (!fullDraft && !accountId) {
+        fullDraft = await client.getEmail(draft.id);
+      }
+      if (!fullDraft) {
+        const { toast } = await import('sonner');
+        toast.error('Failed to load draft. Please try again.');
+        return;
+      }
       draft = fullDraft;
     }
 
