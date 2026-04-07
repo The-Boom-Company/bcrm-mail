@@ -145,6 +145,20 @@ function sortIdentities(rawIdentities: Identity[], username: string): Identity[]
   });
 }
 
+/**
+ * Derives an RFC 5321 email from a Stalwart principal name like "admin.my-site".
+ * Pattern: the first dot separates local-part from domain slug → admin@my-site.bcrm.one.
+ * Returns null when the name already contains @ or has no dot.
+ */
+function deriveEmailFromPrincipalName(name: string): string | null {
+  if (name.includes('@') || !name.includes('.')) return null;
+  const dotIdx = name.indexOf('.');
+  const local = name.substring(0, dotIdx);
+  const slug = name.substring(dotIdx + 1);
+  if (!local || !slug) return null;
+  return `${local}@${slug}.bcrm.one`;
+}
+
 function loadIdentities(rawIdentities: Identity[], username: string): { identities: Identity[]; primaryIdentity: Identity | null } {
   const preferredPrimaryId = useIdentityStore.getState().preferredPrimaryId;
   const identities = sortIdentities(rawIdentities, username);
@@ -161,6 +175,26 @@ function loadIdentities(rawIdentities: Identity[], username: string): { identiti
   const primaryIdentity = identities[0] ?? null;
   useIdentityStore.getState().setIdentities(identities);
   return { identities, primaryIdentity };
+}
+
+/**
+ * After a successful login, if no JMAP identities were returned, attempt to
+ * create a default one so the user can send mail immediately.
+ */
+async function ensureDefaultIdentity(client: IJMAPClient, username: string): Promise<{ identities: Identity[]; primaryIdentity: Identity | null } | null> {
+  const email = username.includes('@') ? username : deriveEmailFromPrincipalName(username);
+  if (!email) return null;
+
+  try {
+    const created = await client.createIdentity('', email);
+    if (created) {
+      const refreshed = await client.getIdentities();
+      return loadIdentities(refreshed, username);
+    }
+  } catch (err) {
+    debug.error('Failed to create default identity:', err);
+  }
+  return null;
 }
 
 function getLocaleLoginPath(): string {
@@ -353,7 +387,11 @@ export const useAuthStore = create<AuthState>()(
           const client = new JMAPClient(serverUrl, username, effectivePassword);
           await client.connect();
 
-          const { identities, primaryIdentity } = loadIdentities(await client.getIdentities(), username);
+          let { identities, primaryIdentity } = loadIdentities(await client.getIdentities(), username);
+          if (identities.length === 0) {
+            const created = await ensureDefaultIdentity(client, username);
+            if (created) ({ identities, primaryIdentity } = created);
+          }
           initializeFeatureStores(client);
 
           // Register in account store
@@ -551,7 +589,11 @@ export const useAuthStore = create<AuthState>()(
           await client.connect();
 
           const jmapUsername = client.getUsername();
-          const { identities, primaryIdentity } = loadIdentities(await client.getIdentities(), jmapUsername);
+          let { identities, primaryIdentity } = loadIdentities(await client.getIdentities(), jmapUsername);
+          if (identities.length === 0) {
+            const created = await ensureDefaultIdentity(client, jmapUsername);
+            if (created) ({ identities, primaryIdentity } = created);
+          }
           // For OAuth/OIDC, the JMAP session account name may be the
           // preferred_username claim rather than the real email address.
           // Prefer the email from the primary identity when available.
@@ -672,7 +714,11 @@ export const useAuthStore = create<AuthState>()(
           await client.connect();
 
           const jmapUsername = client.getUsername();
-          const { identities, primaryIdentity } = loadIdentities(await client.getIdentities(), jmapUsername);
+          let { identities, primaryIdentity } = loadIdentities(await client.getIdentities(), jmapUsername);
+          if (identities.length === 0) {
+            const created = await ensureDefaultIdentity(client, jmapUsername);
+            if (created) ({ identities, primaryIdentity } = created);
+          }
           // For SSO/OIDC, the JMAP session account name may be the
           // preferred_username claim rather than the real email address.
           // Prefer the email from the primary identity when available.

@@ -6,6 +6,7 @@ import { getPathPrefix, getLocaleFromPath } from "@/lib/browser-navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSignatureStore } from "@/stores/signature-store";
 import { useThemeStore } from "@/stores/theme-store";
+import { injectThemeCSS, removeThemeCSS } from "@/lib/theme-loader";
 import { useConfig, fetchConfig } from "@/hooks/use-config";
 import { debug } from "@/lib/debug";
 
@@ -175,8 +176,17 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
 
         case "bcrm:set-palette": {
           const paletteId = msg.paletteId as string | null | undefined;
-          const themeId = paletteId ? `bcrm-${paletteId}` : null;
-          useThemeStore.getState().activateTheme(themeId);
+          const css = msg.css as string | null | undefined;
+          if (css) {
+            injectThemeCSS(css);
+            useThemeStore.getState().activateTheme(null);
+          } else if (paletteId) {
+            const themeId = `bcrm-${paletteId}`;
+            useThemeStore.getState().activateTheme(themeId);
+          } else {
+            removeThemeCSS();
+            useThemeStore.getState().activateTheme(null);
+          }
           break;
         }
 

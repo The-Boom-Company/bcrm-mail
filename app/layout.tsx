@@ -32,6 +32,7 @@ export default async function RootLayout({
   const locale = await getLocale();
   const nonce = (await headers()).get("x-nonce") ?? "";
   const parentOrigin = process.env.NEXT_PUBLIC_PARENT_ORIGIN || "";
+  const isEmbedded = (await headers()).get("sec-fetch-dest") === "iframe";
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -61,7 +62,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased${isEmbedded ? " overflow-hidden" : ""}`}
       >
         {children}
       </body>
