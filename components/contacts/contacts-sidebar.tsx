@@ -176,7 +176,7 @@ export function ContactsSidebar({
   }, [groups, individuals]);
 
   return (
-    <div className={cn("flex flex-col h-full bg-secondary", className)}>
+    <div className={cn("flex flex-col h-full bg-sidebar text-sidebar-foreground", className)}>
       {/* Header */}
       <div className="px-3 border-b border-border flex items-center justify-between" style={{ paddingBlock: 'var(--density-header-py)' }}>
         <span className="text-sm font-semibold truncate">{t("title")}</span>

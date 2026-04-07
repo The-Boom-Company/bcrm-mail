@@ -130,7 +130,7 @@ export function FolderTreeSidebar({ currentPath, onNavigate, listByParentId, wid
   return (
     <div
       className={cn(
-        "border-r border-border bg-secondary overflow-hidden shrink-0 hidden lg:flex flex-col",
+        "border-r border-sidebar-border bg-sidebar text-sidebar-foreground overflow-hidden shrink-0 hidden lg:flex flex-col",
         !isResizing && "transition-[width] duration-300"
       )}
       style={{ width: `${width}px` }}
