@@ -4,15 +4,25 @@ import { useEffect, useRef } from "react";
 import { isEmbedded, listenFromParent, notifyParent } from "@/lib/iframe-bridge";
 import { getPathPrefix, getLocaleFromPath } from "@/lib/browser-navigation";
 import { useAuthStore } from "@/stores/auth-store";
+import { useSignatureStore } from "@/stores/signature-store";
 import { useThemeStore } from "@/stores/theme-store";
 import { useConfig, fetchConfig } from "@/hooks/use-config";
 import { debug } from "@/lib/debug";
+
+type SignaturePair = {
+  html: string;
+  text: string;
+};
 
 type PortalAccount = {
   email: string;
   token: string;
   displayName: string;
   isDefault: boolean;
+  signatures?: {
+    newEmail: SignaturePair | null;
+    reply: SignaturePair | null;
+  };
 };
 
 function decodeBasicToken(token: string): { username: string; password: string } | null {
@@ -116,6 +126,12 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
             }
           } catch (err) {
             debug.error("Failed to setup account:", account.email, err);
+          }
+        }
+
+        for (const account of defaultFirst) {
+          if (account.signatures) {
+            useSignatureStore.getState().setSignatures(account.email, account.signatures);
           }
         }
 

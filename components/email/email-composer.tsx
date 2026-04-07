@@ -12,6 +12,7 @@ import { toast } from "@/stores/toast-store";
 import { sanitizeEmailHtml } from "@/lib/email-sanitization";
 import { useAuthStore } from "@/stores/auth-store";
 import { useIdentityStore } from "@/stores/identity-store";
+import { useSignatureStore } from "@/stores/signature-store";
 import type { Identity } from "@/lib/jmap/types";
 import { useSmimeStore } from "@/stores/smime-store";
 import { useEmailStore } from "@/stores/email-store";
@@ -227,11 +228,18 @@ export function EmailComposer({
   const currentIdentity = selectedIdentityId
     ? identities.find((identity) => identity.id === selectedIdentityId) || primaryIdentity
     : primaryIdentity;
-  const composerSignatureHtml = currentIdentity?.htmlSignature
-    ? `<div>${sanitizeEmailHtml(currentIdentity.htmlSignature)}</div>`
-    : currentIdentity?.textSignature
-      ? `<div>${getPlainTextSignature(currentIdentity).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>`
-      : '';
+
+  const isReplyOrForward = mode === 'reply' || mode === 'replyAll' || mode === 'forward';
+  const portalSignatures = useSignatureStore((s) => s.getSignatures(currentIdentity?.email ?? ''));
+  const activePortalSig = isReplyOrForward ? portalSignatures?.reply : portalSignatures?.newEmail;
+
+  const composerSignatureHtml = activePortalSig?.html
+    ? `<div>${activePortalSig.html}</div>`
+    : currentIdentity?.htmlSignature
+      ? `<div>${sanitizeEmailHtml(currentIdentity.htmlSignature)}</div>`
+      : currentIdentity?.textSignature
+        ? `<div>${getPlainTextSignature(currentIdentity).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>`
+        : '';
   const getAutocomplete = useContactStore((s) => s.getAutocomplete);
   const addTemplate = useTemplateStore((s) => s.addTemplate);
   const sendRawEmail = useEmailStore((s) => s.sendRawEmail);
@@ -707,6 +715,9 @@ export function EmailComposer({
     // Body is already HTML from the rich text editor (or plain text in plain text mode).
     // Build HTML signature block (used only in rich text mode)
     const buildSignatureHtml = (): string => {
+      if (activePortalSig?.html) {
+        return `<br><br>-- <br>${activePortalSig.html}`;
+      }
       if (currentIdentity?.htmlSignature) {
         return `<br><br>-- <br>${sanitizeEmailHtml(currentIdentity.htmlSignature)}`;
       }
@@ -716,10 +727,14 @@ export function EmailComposer({
       return '';
     };
 
-    // In plain text mode, send text/plain only (no HTML body)
+    const portalTextSig = activePortalSig?.text;
+    const appendSig = (text: string) => {
+      if (portalTextSig) return `${text}\n\n-- \n${portalTextSig}`;
+      return appendPlainTextSignature(text, currentIdentity);
+    };
     const finalBody = plainTextMode
-      ? appendPlainTextSignature(body, currentIdentity)
-      : appendPlainTextSignature(htmlToPlainText(body), currentIdentity);
+      ? appendSig(body)
+      : appendSig(htmlToPlainText(body));
 
     const finalHtmlBody = plainTextMode
       ? undefined

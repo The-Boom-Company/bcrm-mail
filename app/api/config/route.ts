@@ -20,7 +20,11 @@ export async function GET() {
   await configManager.ensureLoaded();
 
   const appName = configManager.get<string>('appName') || process.env.NEXT_PUBLIC_APP_NAME || 'Webmail';
-  const jmapServerUrl = configManager.get<string>('jmapServerUrl') || process.env.NEXT_PUBLIC_JMAP_SERVER_URL || '';
+  // Prefer NEXT_PUBLIC_JMAP_SERVER_URL (the browser-reachable URL) over
+  // JMAP_SERVER_URL which may be a cluster-internal address for server-side use.
+  const jmapServerUrl = process.env.NEXT_PUBLIC_JMAP_SERVER_URL
+    || configManager.get<string>('jmapServerUrl')
+    || '';
   const oauthEnabled = configManager.get<boolean>('oauthEnabled', false);
   const oauthOnly = oauthEnabled && configManager.get<boolean>('oauthOnly', false);
   const stalwartFeaturesEnabled = configManager.get<boolean>('stalwartFeaturesEnabled', true);
