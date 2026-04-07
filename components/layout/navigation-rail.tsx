@@ -18,6 +18,7 @@ import { usePolicyStore } from "@/stores/policy-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { cn, formatFileSize } from "@/lib/utils";
 import { PluginSlot } from "@/components/plugins/plugin-slot";
+import { isEmbedded, notifyParent } from "@/lib/iframe-bridge";
 
 interface NavItem {
   id: string;
@@ -195,12 +196,22 @@ export function NavigationRail({
     return () => { cancelled = true; };
   }, []);
 
+  const embedded = typeof window !== 'undefined' && isEmbedded();
+
   const navItems: NavItem[] = [
     { id: "mail", icon: Mail, labelKey: "mail", href: "/", badge: inboxUnread },
     { id: "calendar", icon: Calendar, labelKey: "calendar", href: "/calendar", hidden: !supportsCalendar },
     { id: "contacts", icon: BookUser, labelKey: "contacts", href: "/contacts" },
-    { id: "files", icon: HardDrive, labelKey: "files", href: "/files", hidden: supportsWebDAV === false },
+    { id: "files", icon: HardDrive, labelKey: "files", href: embedded ? "#" : "/files", hidden: supportsWebDAV === false },
   ];
+
+  const handleNavClick = (item: NavItem, e: React.MouseEvent) => {
+    if (item.id === "files" && embedded) {
+      e.preventDefault();
+      notifyParent("bcrm-mail:navigate", { path: "/dashboard/drive" });
+    }
+    if (activeAppId) onCloseInlineApp?.();
+  };
 
   const isSettingsActive = !activeAppId && pathname.startsWith("/settings");
 
@@ -228,7 +239,7 @@ export function NavigationRail({
             <Link
               key={item.id}
               href={item.href}
-              onClick={activeAppId ? () => onCloseInlineApp?.() : undefined}
+              onClick={(e) => handleNavClick(item, e)}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 py-2 px-3 min-w-[64px] min-h-[44px] shrink-0",
                 "transition-colors duration-150",
@@ -367,7 +378,7 @@ export function NavigationRail({
             <Link
               key={item.id}
               href={item.href}
-              onClick={activeAppId ? () => onCloseInlineApp?.() : undefined}
+              onClick={(e) => handleNavClick(item, e)}
               data-tour={`nav-${item.id}`}
               className={cn(
                 "relative flex items-center gap-2.5 rounded-md transition-colors duration-150",
