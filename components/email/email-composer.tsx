@@ -982,6 +982,7 @@ export function EmailComposer({
                 <select
                   value={selectedIdentityId || primaryIdentity?.id || ''}
                   onChange={(e) => setSelectedIdentityId(e.target.value)}
+                  tabIndex={1}
                   className="flex-1 bg-transparent text-sm text-foreground outline-none cursor-pointer hover:text-muted-foreground transition-colors min-w-0 truncate"
                 >
                   {identities.map((identity) => {
@@ -1046,6 +1047,7 @@ export function EmailComposer({
               inputRef={toInputRef}
               placeholder={t('to_placeholder')}
               field="to"
+              tabIndex={2}
               onAutocomplete={handleAutocomplete}
               onAutoKeyDown={handleAutoKeyDown}
               onAutoBlur={handleAutoBlur}
@@ -1128,6 +1130,7 @@ export function EmailComposer({
               type="text"
               placeholder={t('subject_placeholder')}
               value={subject}
+              tabIndex={5}
               onChange={(e) => {
                 setSubject(e.target.value);
                 if (validationErrors.subject) setValidationErrors(prev => ({ ...prev, subject: false }));
@@ -1150,6 +1153,7 @@ export function EmailComposer({
               if (validationErrors.body) setValidationErrors(prev => ({ ...prev, body: false }));
             }}
             placeholder={t('body_placeholder')}
+            tabIndex={3}
             className={cn(
               "w-full min-h-[300px] px-4 py-3 text-sm text-foreground bg-transparent resize-y focus:outline-none font-mono",
               validationErrors.body && "ring-2 ring-red-500 dark:ring-red-400 rounded"
@@ -1167,6 +1171,7 @@ export function EmailComposer({
             onImageUpload={handleImageUpload}
             placeholder={t('body_placeholder')}
             hasError={validationErrors.body}
+            tabIndex={3}
           />
         )}
 
@@ -1317,6 +1322,7 @@ export function EmailComposer({
               onClick={handleSend}
               disabled={!canSend}
               title={getSendTooltip()}
+              tabIndex={4}
               className="hidden md:inline-flex"
             >
               <Send className="w-4 h-4 mr-2" />
@@ -1489,6 +1495,7 @@ function RecipientChipInput({
   inputRef,
   placeholder,
   field,
+  tabIndex,
   onAutocomplete,
   onAutoKeyDown,
   onAutoBlur,
@@ -1505,6 +1512,7 @@ function RecipientChipInput({
   inputRef: React.RefObject<HTMLInputElement | null>;
   placeholder: string;
   field: 'to' | 'cc' | 'bcc';
+  tabIndex?: number;
   onAutocomplete: (value: string, field: 'to' | 'cc' | 'bcc') => void;
   onAutoKeyDown: (e: React.KeyboardEvent, field: 'to' | 'cc' | 'bcc') => void;
   onAutoBlur: (e: React.FocusEvent, field: 'to' | 'cc' | 'bcc') => void;
@@ -1628,6 +1636,7 @@ function RecipientChipInput({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
+          tabIndex={tabIndex}
           className="flex-1 min-w-[120px] border-0 outline-none h-7 text-sm bg-transparent text-foreground placeholder:text-muted-foreground"
           role="combobox"
           aria-expanded={activeAutoField === field && autocompleteResults.length > 0}

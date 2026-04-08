@@ -38,6 +38,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   hasError?: boolean;
+  tabIndex?: number;
 }
 
 function ToolbarButton({
@@ -81,6 +82,7 @@ export function RichTextEditor({
   placeholder,
   className,
   hasError,
+  tabIndex,
 }: RichTextEditorProps) {
   const onImageUploadRef = React.useRef(onImageUpload);
   onImageUploadRef.current = onImageUpload;
@@ -109,6 +111,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: "tiptap min-h-[100px] px-4 py-3 text-sm text-foreground",
+        ...(tabIndex != null ? { tabindex: String(tabIndex) } : {}),
       },
       handleDrop: (view, event) => {
         const upload = onImageUploadRef.current;
