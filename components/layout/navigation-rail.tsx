@@ -198,6 +198,11 @@ export function NavigationRail({
 
   const embedded = typeof window !== 'undefined' && isEmbedded();
 
+  useEffect(() => {
+    if (!embedded) return;
+    notifyParent("bcrm-mail:unread-count", { count: inboxUnread });
+  }, [embedded, inboxUnread]);
+
   const navItems: NavItem[] = [
     { id: "mail", icon: Mail, labelKey: "mail", href: "/", badge: inboxUnread },
     { id: "calendar", icon: Calendar, labelKey: "calendar", href: "/calendar", hidden: !supportsCalendar },

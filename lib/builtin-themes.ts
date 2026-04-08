@@ -742,6 +742,88 @@ const bcrmSlateCSS = `
   --color-chart-5: #cbd5e1;
 }`;
 
+const bcrmGreyscaleCSS = `
+:root {
+  --color-background: #fafafa;
+  --color-foreground: #171717;
+  --color-card: #ffffff;
+  --color-card-foreground: #171717;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #171717;
+  --color-primary: #525252;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #a3a3a3;
+  --color-secondary-foreground: #171717;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #737373;
+  --color-accent: #e5e5e5;
+  --color-accent-foreground: #262626;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #525252;
+  --color-sidebar: #f5f5f5;
+  --color-sidebar-foreground: #171717;
+  --color-sidebar-border: #e5e5e5;
+  --color-sidebar-accent: #e5e5e5;
+  --color-sidebar-accent-foreground: #262626;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-foreground: #ffffff;
+  --color-info: #525252;
+  --color-info-foreground: #ffffff;
+  --color-selection: #e5e5e5;
+  --color-selection-foreground: #262626;
+  --color-unread: #525252;
+  --color-chart-1: #525252;
+  --color-chart-2: #a3a3a3;
+  --color-chart-3: #d4d4d4;
+  --color-chart-4: #404040;
+  --color-chart-5: #737373;
+}
+.dark {
+  --color-background: #0a0a0a;
+  --color-foreground: #e5e5e5;
+  --color-card: #171717;
+  --color-card-foreground: #e5e5e5;
+  --color-popover: #1c1c1c;
+  --color-popover-foreground: #e5e5e5;
+  --color-primary: #a3a3a3;
+  --color-primary-foreground: #0a0a0a;
+  --color-secondary: #525252;
+  --color-secondary-foreground: #e5e5e5;
+  --color-muted: #1c1c1c;
+  --color-muted-foreground: #737373;
+  --color-accent: #262626;
+  --color-accent-foreground: #e5e5e5;
+  --color-destructive: #ff6e84;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #2e2e2e;
+  --color-input: #262626;
+  --color-ring: #a3a3a3;
+  --color-sidebar: #0a0a0a;
+  --color-sidebar-foreground: #e5e5e5;
+  --color-sidebar-border: #2e2e2e;
+  --color-sidebar-accent: #1c1c1c;
+  --color-sidebar-accent-foreground: #e5e5e5;
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #ffffff;
+  --color-info: #a3a3a3;
+  --color-info-foreground: #ffffff;
+  --color-selection: rgba(163, 163, 163, 0.2);
+  --color-selection-foreground: #d4d4d4;
+  --color-unread: #a3a3a3;
+  --color-chart-1: #a3a3a3;
+  --color-chart-2: #737373;
+  --color-chart-3: #d4d4d4;
+  --color-chart-4: #525252;
+  --color-chart-5: #e5e5e5;
+}`;
+
 export const BUILTIN_THEMES: InstalledTheme[] = [
   {
     id: 'bcrm-emerald',
@@ -794,6 +876,17 @@ export const BUILTIN_THEMES: InstalledTheme[] = [
     author: 'BCRM',
     description: 'Professional neutral blue-gray tones',
     css: bcrmSlateCSS,
+    variants: ['light', 'dark'],
+    enabled: true,
+    builtIn: true,
+  },
+  {
+    id: 'bcrm-greyscale',
+    name: 'BCRM Greyscale',
+    version: '1.0.0',
+    author: 'BCRM',
+    description: 'Pure neutral grey tones with no color hue',
+    css: bcrmGreyscaleCSS,
     variants: ['light', 'dark'],
     enabled: true,
     builtIn: true,
