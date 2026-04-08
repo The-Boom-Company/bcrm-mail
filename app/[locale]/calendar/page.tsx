@@ -116,10 +116,8 @@ export default function CalendarPage() {
     if (initialCheckDone && !isAuthenticated && !authLoading) {
       try { sessionStorage.setItem('redirect_after_login', window.location.pathname); } catch { /* ignore */ }
       redirectToLogin();
-    } else if (client && !supportsCalendar) {
-      router.push("/");
     }
-  }, [initialCheckDone, isAuthenticated, authLoading, client, supportsCalendar, router]);
+  }, [initialCheckDone, isAuthenticated, authLoading]);
 
   useEffect(() => {
     if (error) {
@@ -715,7 +713,16 @@ export default function CalendarPage() {
     [events, selectedCalendarIds]
   );
 
-  if (!isAuthenticated || !supportsCalendar) return null;
+  if (!isAuthenticated || !supportsCalendar) {
+    return (
+      <div className="flex items-center justify-center flex-1 h-full">
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <div className="size-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          <p className="text-sm">Loading calendar…</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderView = () => {
     if (isLoading && calendars.length === 0) {

@@ -13,6 +13,8 @@ interface ThemeState {
   theme: Theme;
   resolvedTheme: 'light' | 'dark';
   hydrated: boolean;
+  /** When true, the parent portal controls the theme CSS; local theme init is skipped. */
+  portalThemeActive: boolean;
 
   // Custom theme system
   installedThemes: InstalledTheme[];
@@ -59,6 +61,7 @@ export const useThemeStore = create<ThemeState>()(
       theme: 'system',
       resolvedTheme: 'light',
       hydrated: false,
+      portalThemeActive: false,
       installedThemes: [...BUILTIN_THEMES],
       activeThemeId: null,
 
@@ -66,7 +69,8 @@ export const useThemeStore = create<ThemeState>()(
         const resolvedTheme = theme === 'system' ? getSystemTheme() : theme;
         applyTheme(resolvedTheme);
         set({ theme, resolvedTheme });
-        // Re-apply active custom theme for new mode
+        // Re-apply active custom theme for new mode (skip if portal controls CSS)
+        if (get().portalThemeActive) return;
         const { activeThemeId, installedThemes } = get();
         if (activeThemeId) {
           const t = installedThemes.find(t => t.id === activeThemeId);
@@ -83,10 +87,14 @@ export const useThemeStore = create<ThemeState>()(
       },
 
       initializeTheme: () => {
-        const { theme, activeThemeId, installedThemes } = get();
+        const { theme, activeThemeId, installedThemes, portalThemeActive } = get();
         const resolvedTheme = theme === 'system' ? getSystemTheme() : theme;
         applyTheme(resolvedTheme);
         set({ resolvedTheme, hydrated: true });
+
+        // When the parent portal controls the theme, skip local CSS application
+        // so the portal-injected <style id="active-theme"> is not overwritten.
+        if (portalThemeActive) return;
 
         // Determine effective theme: user choice > policy default > none
         let effectiveThemeId = activeThemeId;
@@ -95,7 +103,6 @@ export const useThemeStore = create<ThemeState>()(
           const tp = policyState.policy.themePolicy;
           if (tp?.defaultThemeId) {
             effectiveThemeId = tp.defaultThemeId;
-            // Persist so we don't re-check every time
             set({ activeThemeId: effectiveThemeId });
           }
         }
@@ -104,14 +111,13 @@ export const useThemeStore = create<ThemeState>()(
         if (effectiveThemeId) {
           const t = installedThemes.find(t => t.id === effectiveThemeId);
           if (t) {
-            // Load CSS from IndexedDB (may have been stripped from localStorage)
             if (t.css) {
               applyCustomThemeCSS(t, resolvedTheme);
             } else {
               pluginStorage.getThemeCSS(effectiveThemeId).then(css => {
+                if (get().portalThemeActive) return;
                 if (css) {
                   injectThemeCSS(css);
-                  // Update the in-memory cache
                   set({
                     installedThemes: installedThemes.map(
                       it => it.id === effectiveThemeId ? { ...it, css } : it
@@ -249,6 +255,7 @@ export const useThemeStore = create<ThemeState>()(
       partialize: (state) => ({
         theme: state.theme,
         activeThemeId: state.activeThemeId,
+        // portalThemeActive is intentionally excluded — it's session-only
         // Store theme metadata but NOT full CSS (that goes in IndexedDB)
         installedThemes: state.installedThemes.map(t => ({
           ...t,

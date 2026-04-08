@@ -204,10 +204,9 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
           const css = msg.css as string | null | undefined;
           if (css) {
             injectThemeCSS(css);
-            // Clear Bulwark's active theme ID without calling activateTheme(null),
-            // which would removeThemeCSS() and destroy the CSS we just injected
-            // (both use the same <style id="active-theme"> element).
-            useThemeStore.setState({ activeThemeId: null });
+            // Mark portal as the theme authority so initializeTheme() and
+            // async IndexedDB loads don't overwrite the portal CSS.
+            useThemeStore.setState({ activeThemeId: null, portalThemeActive: true });
           } else if (paletteId) {
             const themeId = `bcrm-${paletteId}`;
             useThemeStore.getState().activateTheme(themeId);
