@@ -178,15 +178,16 @@ export class JMAPClient implements IJMAPClient {
     }
 
     const headers = { ...init?.headers as Record<string, string>, 'Authorization': this.authHeader };
+    const fetchOpts = { ...init, headers, credentials: 'omit' as RequestCredentials };
     let response: Response;
 
     try {
-      response = await fetch(url, { ...init, headers });
+      response = await fetch(url, fetchOpts);
     } catch (error) {
       // Network error: retry once after brief delay (transient proxy/connection issues)
       if (this.reconnecting) throw error;
       await new Promise(r => setTimeout(r, 1000));
-      response = await fetch(url, { ...init, headers });
+      response = await fetch(url, fetchOpts);
     }
 
     // Handle 429 rate limiting — stop immediately, do not retry
@@ -202,16 +203,15 @@ export class JMAPClient implements IJMAPClient {
         if (newToken) {
           this.updateAccessToken(newToken);
           const retryHeaders = { ...init?.headers as Record<string, string>, 'Authorization': this.authHeader };
-          response = await fetch(url, { ...init, headers: retryHeaders });
+          response = await fetch(url, { ...init, headers: retryHeaders, credentials: 'omit' });
         }
       } else if (this.authMode === 'basic' && !this.reconnecting && url !== `${this.serverUrl}/.well-known/jmap`) {
-        // JMAP session may have expired — re-establish and retry once
         this.reconnecting = true;
         try {
           await this.refreshSession();
           this.connectionChangeCallback?.(true);
           const retryHeaders = { ...init?.headers as Record<string, string>, 'Authorization': this.authHeader };
-          response = await fetch(url, { ...init, headers: retryHeaders });
+          response = await fetch(url, { ...init, headers: retryHeaders, credentials: 'omit' });
         } catch {
           // Session refresh failed — return original 401 response
         } finally {
@@ -228,6 +228,7 @@ export class JMAPClient implements IJMAPClient {
     const response = await fetch(sessionUrl, {
       method: 'GET',
       headers: { 'Authorization': this.authHeader },
+      credentials: 'omit',
     });
 
     if (!response.ok) {

@@ -188,6 +188,20 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
           break;
         }
 
+        case "portal:switch-account": {
+          const email = msg.email as string | undefined;
+          if (email) {
+            const accounts = useAccountStore.getState().accounts;
+            const match = accounts.find(
+              (a) => a.email === email || a.username === email,
+            );
+            if (match) {
+              useAuthStore.getState().switchAccount(match.id);
+            }
+          }
+          break;
+        }
+
         case "sso:trigger-login": {
           const prefix = getPathPrefix();
           const locale = getLocaleFromPath();

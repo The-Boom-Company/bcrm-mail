@@ -397,7 +397,6 @@ export const useAuthStore = create<AuthState>()(
             const created = await ensureDefaultIdentity(client, username);
             if (created) ({ identities, primaryIdentity } = created);
           }
-          initializeFeatureStores(client);
 
           // Register in account store
           const accountStore = useAccountStore.getState();
@@ -417,6 +416,10 @@ export const useAuthStore = create<AuthState>()(
           // Store client in multi-account map
           clients.set(accountId, client);
           bindClientStatusHandlers(client, set, get, accountId);
+
+          // Initialize feature stores AFTER clearAllStores so feature flags
+          // (supportsCalendar, supportsContacts, etc.) survive multi-account login.
+          initializeFeatureStores(client);
 
           accountStore.addAccount({
             label: primaryIdentity?.name || username,
@@ -603,7 +606,6 @@ export const useAuthStore = create<AuthState>()(
           // preferred_username claim rather than the real email address.
           // Prefer the email from the primary identity when available.
           const username = primaryIdentity?.email || jmapUsername;
-          initializeFeatureStores(client);
 
           // Register in account store
           const accountId = generateAccountId(username, serverUrl);
@@ -618,6 +620,8 @@ export const useAuthStore = create<AuthState>()(
 
           clients.set(accountId, client);
           bindClientStatusHandlers(client, set, get, accountId);
+
+          initializeFeatureStores(client);
 
           accountStore.addAccount({
             label: primaryIdentity?.name || username,
@@ -728,7 +732,6 @@ export const useAuthStore = create<AuthState>()(
           // preferred_username claim rather than the real email address.
           // Prefer the email from the primary identity when available.
           const username = primaryIdentity?.email || jmapUsername;
-          initializeFeatureStores(client);
 
           const accountId = generateAccountId(username, ssoServerUrl);
 
@@ -740,6 +743,8 @@ export const useAuthStore = create<AuthState>()(
 
           clients.set(accountId, client);
           bindClientStatusHandlers(client, set, get, accountId);
+
+          initializeFeatureStores(client);
 
           accountStore.addAccount({
             label: primaryIdentity?.name || username,
@@ -1192,8 +1197,13 @@ export const useAuthStore = create<AuthState>()(
                 } else {
                   throw new Error(`Session cookie missing: ${res.status}`);
                 }
+              } else if (account.authMode === 'basic' && !account.rememberMe) {
+                // Embedded portal accounts (rememberMe: false) will be
+                // re-authenticated by portal:setup-accounts. Skip without
+                // removing so the account entry survives until the portal
+                // delivers fresh credentials.
+                continue;
               } else {
-                // Basic auth without rememberMe — can't restore
                 throw new Error('No saved session');
               }
             } catch (err) {
@@ -1206,8 +1216,6 @@ export const useAuthStore = create<AuthState>()(
                 });
                 continue;
               }
-              // Remove unrestorable accounts so the user is prompted to log in
-              // again rather than seeing a stale error entry forever.
               evictAccount(account.id);
               accountStore.removeAccount(account.id);
               fetch(`/api/auth/session?slot=${account.cookieSlot}`, { method: 'DELETE' }).catch(() => {});
