@@ -127,6 +127,11 @@ function emailMatchesUsername(email: string, username: string): boolean {
   if (email === username) return true;
   // Handle local-part login: username "user" should match "user@domain.tld"
   if (!username.includes('@') && email.split('@')[0] === username) return true;
+  // Handle BCRM principal: "admin.slug" should match "admin@slug.bcrm.one"
+  if (!username.includes('@') && username.includes('.')) {
+    const derived = deriveEmailFromPrincipalName(username);
+    if (derived && email === derived) return true;
+  }
   return false;
 }
 

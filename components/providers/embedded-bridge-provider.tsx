@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { generateAccountId } from "@/lib/account-utils";
 import { isEmbedded, listenFromParent, notifyParent } from "@/lib/iframe-bridge";
 import { getPathPrefix, getLocaleFromPath } from "@/lib/browser-navigation";
+import { useAccountStore } from "@/stores/account-store";
 import { useAuthStore } from "@/stores/auth-store";
+import { useIdentityStore } from "@/stores/identity-store";
 import { useSignatureStore } from "@/stores/signature-store";
 import { useThemeStore } from "@/stores/theme-store";
 import { injectThemeCSS, removeThemeCSS } from "@/lib/theme-loader";
@@ -122,8 +125,30 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
               undefined,
               false,
             );
-            if (success && !firstSuccess) {
-              firstSuccess = true;
+            if (success) {
+              if (!firstSuccess) firstSuccess = true;
+
+              // Override account store with the portal's canonical email and
+              // display name. The login() flow only has the Stalwart principal
+              // name (e.g. "admin.my-site"), not the RFC email.
+              const accountId = generateAccountId(creds.username, config.jmapServerUrl);
+              useAccountStore.getState().updateAccount(accountId, {
+                email: account.email,
+                displayName: account.displayName || account.email,
+                label: account.displayName || account.email,
+              });
+
+              // Patch identities so the composer FROM shows the portal email.
+              const identities = useIdentityStore.getState().identities;
+              if (identities.length > 0) {
+                const patched = identities.map((id) => {
+                  if (!id.email || id.email === creds.username) {
+                    return { ...id, email: account.email };
+                  }
+                  return id;
+                });
+                useIdentityStore.getState().setIdentities(patched);
+              }
             }
           } catch (err) {
             debug.error("Failed to setup account:", account.email, err);
@@ -179,7 +204,10 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
           const css = msg.css as string | null | undefined;
           if (css) {
             injectThemeCSS(css);
-            useThemeStore.getState().activateTheme(null);
+            // Clear Bulwark's active theme ID without calling activateTheme(null),
+            // which would removeThemeCSS() and destroy the CSS we just injected
+            // (both use the same <style id="active-theme"> element).
+            useThemeStore.setState({ activeThemeId: null });
           } else if (paletteId) {
             const themeId = `bcrm-${paletteId}`;
             useThemeStore.getState().activateTheme(themeId);

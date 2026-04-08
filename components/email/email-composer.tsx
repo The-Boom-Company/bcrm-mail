@@ -10,6 +10,7 @@ import { cn, formatFileSize, formatDateTime } from "@/lib/utils";
 import { debug } from "@/lib/debug";
 import { toast } from "@/stores/toast-store";
 import { sanitizeEmailHtml } from "@/lib/email-sanitization";
+import { useAccountStore } from "@/stores/account-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { useIdentityStore } from "@/stores/identity-store";
 import { useSignatureStore } from "@/stores/signature-store";
@@ -223,8 +224,10 @@ export function EmailComposer({
   });
 
   const { client, username } = useAuthStore();
+  const activeAccount = useAccountStore((s) => s.getActiveAccount());
   const identities = useIdentityStore((s) => s.identities);
-  const primaryIdentity = identities[0] ?? (username && username.includes('@') ? { id: '_fallback', name: '', email: username } as Identity : null);
+  const fallbackEmail = activeAccount?.email || username || '';
+  const primaryIdentity = identities[0] ?? (fallbackEmail.includes('@') ? { id: '_fallback', name: activeAccount?.displayName || '', email: fallbackEmail } as Identity : null);
   const currentIdentity = selectedIdentityId
     ? identities.find((identity) => identity.id === selectedIdentityId) || primaryIdentity
     : primaryIdentity;
