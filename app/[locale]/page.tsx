@@ -278,12 +278,14 @@ export default function Home() {
     document.title = title;
   }, [showComposer, composerMode, selectedEmail, selectedMailbox, mailboxes, t, appName]);
 
-  // Check auth on mount
+  // Check auth on mount (run once — zustand selector changes must not re-trigger)
+  const checkAuthRef = useRef(checkAuth);
+  checkAuthRef.current = checkAuth;
   useEffect(() => {
-    checkAuth().finally(() => {
+    checkAuthRef.current().finally(() => {
       setInitialCheckDone(true);
     });
-  }, [checkAuth]);
+  }, []);
 
   // Initialize plugins on mount (re-activates enabled plugins after refresh)
   useEffect(() => {

@@ -1145,6 +1145,11 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
+        // Already fully authenticated with a live client — nothing to restore.
+        // This prevents a re-triggered checkAuth (e.g. from a zustand reference
+        // change) from wiping the client that login() just established.
+        if (get().isAuthenticated && get().client) return;
+
         const accountStore = useAccountStore.getState();
         const accounts = accountStore.accounts;
 
