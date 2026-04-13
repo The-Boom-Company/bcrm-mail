@@ -112,6 +112,23 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
 
         const existingAccounts = useAccountStore.getState().accounts;
 
+        // Purge stale account entries left over from a previous JMAP URL
+        // (e.g. mail.bcrm.one → bcrm.app). Without this, the same mailbox
+        // gets two entries with different IDs and switchAccount fails
+        // because the stale entry has no live client.
+        for (const account of defaultFirst) {
+          const creds = decodeBasicToken(account.token);
+          if (!creds) continue;
+          const correctId = generateAccountId(creds.username, config.jmapServerUrl);
+          const staleEntries = existingAccounts.filter(
+            (a) => (a.email === account.email || a.username === creds.username) && a.id !== correctId,
+          );
+          for (const stale of staleEntries) {
+            debug.info("Removing stale account entry:", stale.id, "→ replaced by", correctId);
+            useAccountStore.getState().removeAccount(stale.id);
+          }
+        }
+
         for (const account of defaultFirst) {
           const creds = decodeBasicToken(account.token);
           if (!creds) {
@@ -182,8 +199,9 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
         }
 
         if (firstSuccess) {
-          // Sequential logins leave the last account active. Switch back
-          // to the default so the user sees their primary inbox first.
+          // Sequential logins leave the last account active. Directly
+          // activate the default account's client without going through
+          // the full switchAccount machinery (which can race with user clicks).
           const defaultEntry = defaultFirst[0];
           if (defaultEntry && defaultFirst.length > 1) {
             const defaultCreds = decodeBasicToken(defaultEntry.token);
@@ -191,7 +209,19 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
               const defaultId = generateAccountId(defaultCreds.username, config.jmapServerUrl!);
               const currentActive = useAuthStore.getState().activeAccountId;
               if (currentActive !== defaultId) {
-                await useAuthStore.getState().switchAccount(defaultId);
+                const defaultClient = useAuthStore.getState().getClientForAccount(defaultId);
+                if (defaultClient) {
+                  const defaultAcct = useAccountStore.getState().getAccountById(defaultId);
+                  useAccountStore.getState().setActiveAccount(defaultId);
+                  useAuthStore.setState({
+                    activeAccountId: defaultId,
+                    client: defaultClient,
+                    serverUrl: defaultAcct?.serverUrl ?? config.jmapServerUrl!,
+                    username: defaultAcct?.username ?? defaultCreds.username,
+                    isAuthenticated: true,
+                    isLoading: false,
+                  });
+                }
               }
             }
           }
