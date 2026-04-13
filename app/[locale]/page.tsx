@@ -303,9 +303,11 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated (skip in embedded/iframe mode —
+  // the EmbeddedBridgeProvider will handle auth via portal:setup-accounts)
   useEffect(() => {
     if (initialCheckDone && !isAuthenticated && !authLoading) {
+      try { if (window.self !== window.top) return; } catch { return; }
       try { sessionStorage.setItem('redirect_after_login', window.location.pathname); } catch { /* ignore */ }
       redirectToLogin();
     }
