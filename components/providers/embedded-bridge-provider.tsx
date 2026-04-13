@@ -124,7 +124,7 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
             (a) => (a.email === account.email || a.username === creds.username) && a.id !== correctId,
           );
           for (const stale of staleEntries) {
-            debug.info("Removing stale account entry:", stale.id, "→ replaced by", correctId);
+            debug.log("Removing stale account entry:", stale.id, "→ replaced by", correctId);
             useAccountStore.getState().removeAccount(stale.id);
           }
         }
