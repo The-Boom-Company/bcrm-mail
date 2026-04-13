@@ -1283,13 +1283,15 @@ export const useAuthStore = create<AuthState>()(
           }
 
           // If every remaining account is an embedded portal account
-          // (basic + rememberMe: false), stay in loading state so the page
-          // shows a spinner while waiting for portal:setup-accounts instead
-          // of redirecting to the login page and triggering a full reload.
+          // (basic + rememberMe: false), clear loading so the page shows a
+          // spinner via the (!isAuthenticated || !client) condition rather
+          // than via authLoading. This ensures login() state transitions
+          // (isLoading: true → false) are clean and trigger re-renders.
           const remainingAccounts = accountStore.accounts;
           const allEmbeddedPortal = remainingAccounts.length > 0
             && remainingAccounts.every(a => a.authMode === 'basic' && !a.rememberMe);
           if (allEmbeddedPortal) {
+            set({ isLoading: false });
             return;
           }
 
