@@ -110,10 +110,27 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
 
         let firstSuccess = false;
 
+        const existingAccounts = useAccountStore.getState().accounts;
+
         for (const account of defaultFirst) {
           const creds = decodeBasicToken(account.token);
           if (!creds) {
             debug.error("Invalid token for", account.email);
+            continue;
+          }
+
+          const accountId = generateAccountId(creds.username, config.jmapServerUrl);
+          const alreadyRegistered = existingAccounts.some(
+            (a) => a.id === accountId || a.email === account.email,
+          );
+
+          if (alreadyRegistered) {
+            if (!firstSuccess) firstSuccess = true;
+            useAccountStore.getState().updateAccount(accountId, {
+              email: account.email,
+              displayName: account.displayName || account.email,
+              label: account.displayName || account.email,
+            });
             continue;
           }
 
@@ -128,17 +145,12 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
             if (success) {
               if (!firstSuccess) firstSuccess = true;
 
-              // Override account store with the portal's canonical email and
-              // display name. The login() flow only has the Stalwart principal
-              // name (e.g. "admin.my-site"), not the RFC email.
-              const accountId = generateAccountId(creds.username, config.jmapServerUrl);
               useAccountStore.getState().updateAccount(accountId, {
                 email: account.email,
                 displayName: account.displayName || account.email,
                 label: account.displayName || account.email,
               });
 
-              // Patch identities so the composer FROM shows the portal email.
               const identities = useIdentityStore.getState().identities;
               if (identities.length > 0) {
                 const patched = identities.map((id) => {
