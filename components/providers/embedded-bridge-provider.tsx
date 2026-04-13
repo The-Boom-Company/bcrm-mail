@@ -124,7 +124,15 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
             (a) => a.id === accountId || a.email === account.email,
           );
 
-          if (alreadyRegistered) {
+          // An account entry may exist in the persisted store from a previous
+          // page load, but without a live JMAP client it's useless.  Only skip
+          // login() when the auth store already has a connected client.
+          const hasLiveClient =
+            alreadyRegistered &&
+            useAuthStore.getState().isAuthenticated &&
+            !!useAuthStore.getState().client;
+
+          if (hasLiveClient) {
             if (!firstSuccess) firstSuccess = true;
             useAccountStore.getState().updateAccount(accountId, {
               email: account.email,
