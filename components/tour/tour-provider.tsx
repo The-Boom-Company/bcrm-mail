@@ -4,7 +4,6 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { useRouter } from "@/i18n/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCalendarStore } from "@/stores/calendar-store";
-import { useWebDAVStore } from "@/stores/webdav-store";
 import { getTourSteps, type TourStep } from "./tour-steps";
 import { TourOverlay } from "./tour-overlay";
 
@@ -36,13 +35,11 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { isDemoMode } = useAuthStore();
   const { supportsCalendar } = useCalendarStore();
-  const { supportsWebDAV } = useWebDAVStore();
-
   const [isActive, setIsActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [hasCompletedTour, setHasCompletedTour] = useState(false);
 
-  const steps = getTourSteps({ isDemoMode, supportsCalendar, supportsWebDAV: supportsWebDAV !== false });
+  const steps = getTourSteps({ isDemoMode, supportsCalendar, supportsWebDAV: false });
 
   useEffect(() => {
     try {

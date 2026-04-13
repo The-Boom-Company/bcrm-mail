@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { Mail, Calendar, BookUser, HardDrive, Settings, Keyboard, Plus, Shield } from "lucide-react";
+import { Mail, Calendar, BookUser, Settings, Keyboard, Plus, Shield } from "lucide-react";
 import { AccountSwitcher } from "./account-switcher";
 import { icons as lucideIcons, type LucideIcon } from "lucide-react";
 import { useConfig } from "@/hooks/use-config";
@@ -11,7 +11,6 @@ import { usePathname, Link } from "@/i18n/navigation";
 import NextLink from "next/link";
 import { useTranslations } from "next-intl";
 import { useEmailStore } from "@/stores/email-store";
-import { useWebDAVStore } from "@/stores/webdav-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import { usePolicyStore } from "@/stores/policy-store";
 import { useAuthStore } from "@/stores/auth-store";
@@ -161,7 +160,6 @@ export function NavigationRail({
   const { appLogoLightUrl, appLogoDarkUrl } = useConfig();
   const resolvedTheme = useThemeStore((s) => s.resolvedTheme);
   const { mailboxes } = useEmailStore();
-  const { supportsWebDAV } = useWebDAVStore();
   const sidebarApps = useSettingsStore((s) => s.sidebarApps);
   const sidebarAppsEnabled = usePolicyStore((s) => s.isFeatureEnabled('sidebarAppsEnabled'));
   const visibleSidebarApps = sidebarAppsEnabled ? sidebarApps : [];
@@ -205,14 +203,9 @@ export function NavigationRail({
     { id: "mail", icon: Mail, labelKey: "mail", href: "/", badge: inboxUnread },
     { id: "calendar", icon: Calendar, labelKey: "calendar", href: "/calendar" },
     { id: "contacts", icon: BookUser, labelKey: "contacts", href: "/contacts" },
-    { id: "files", icon: HardDrive, labelKey: "files", href: embedded ? "#" : "/files", hidden: supportsWebDAV === false },
   ];
 
-  const handleNavClick = (item: NavItem, e: React.MouseEvent) => {
-    if (item.id === "files" && embedded) {
-      e.preventDefault();
-      notifyParent("bcrm-mail:navigate", { path: "/dashboard/drive" });
-    }
+  const handleNavClick = (_item: NavItem, _e: React.MouseEvent) => {
     if (activeAppId) onCloseInlineApp?.();
   };
 

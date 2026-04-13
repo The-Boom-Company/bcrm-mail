@@ -19,7 +19,6 @@ import {
   FileText,
   FolderOpen,
   Tags,
-  HardDrive,
   Wrench,
   BookUser,
   KeyRound,
@@ -42,7 +41,6 @@ import { AdvancedSettings } from '@/components/settings/advanced-settings';
 import { FolderSettings } from '@/components/settings/folder-settings';
 import { KeywordSettings } from '@/components/settings/keyword-settings';
 import { AccountSecuritySettings } from '@/components/settings/account-security-settings';
-import { FilesSettingsComponent } from '@/components/settings/files-settings';
 import { ContactsSettings } from '@/components/settings/contacts-settings';
 import { SmimeSettings } from '@/components/settings/smime-settings';
 import { SidebarAppsSettings } from '@/components/settings/sidebar-apps-settings';
@@ -61,7 +59,7 @@ import { useConfig } from '@/hooks/use-config';
 import { usePolicyStore } from '@/stores/policy-store';
 import { cn } from '@/lib/utils';
 
-type Tab = 'appearance' | 'email' | 'notifications' | 'account' | 'security' | 'identities' | 'encryption' | 'vacation' | 'calendar' | 'contacts' | 'filters' | 'templates' | 'folders' | 'keywords' | 'files' | 'sidebar_apps' | 'themes' | 'plugins' | 'advanced';
+type Tab = 'appearance' | 'email' | 'notifications' | 'account' | 'security' | 'identities' | 'encryption' | 'vacation' | 'calendar' | 'contacts' | 'filters' | 'templates' | 'folders' | 'keywords' | 'sidebar_apps' | 'themes' | 'plugins' | 'advanced';
 type TabGroup = 'general' | 'account' | 'organization' | 'apps' | 'system';
 
 interface TabDef {
@@ -87,7 +85,6 @@ const tabIcons: Record<Tab, LucideIcon> = {
   templates: FileText,
   folders: FolderOpen,
   keywords: Tags,
-  files: HardDrive,
   sidebar_apps: PanelLeftClose,
   themes: Palette,
   plugins: Puzzle,
@@ -144,7 +141,6 @@ export default function SettingsPage() {
   const supportsVacation = client?.supportsVacationResponse() ?? false;
   const supportsCalendar = client?.supportsCalendars() ?? false;
   const supportsSieve = client?.supportsSieve() ?? false;
-  const supportsFiles = client?.supportsFiles() ?? false;
 
   const tabs: TabDef[] = [
     { id: 'appearance', label: t('tabs.appearance'), icon: tabIcons.appearance, group: 'general' },
@@ -161,7 +157,6 @@ export default function SettingsPage() {
     ...(isFeatureEnabled('customKeywordsEnabled') ? [{ id: 'keywords' as Tab, label: t('tabs.keywords'), icon: tabIcons.keywords, group: 'organization' as TabGroup }] : []),
     ...(supportsCalendar ? [{ id: 'calendar' as Tab, label: t('tabs.calendar'), icon: tabIcons.calendar, group: 'apps' as TabGroup }] : []),
     { id: 'contacts', label: t('tabs.contacts'), icon: tabIcons.contacts, group: 'apps' },
-    ...(supportsFiles ? [{ id: 'files' as Tab, label: t('tabs.files'), icon: tabIcons.files, group: 'apps' as TabGroup }] : []),
     ...(isFeatureEnabled('sidebarAppsEnabled') ? [{ id: 'sidebar_apps' as Tab, label: t('tabs.sidebar_apps'), icon: tabIcons.sidebar_apps, group: 'apps' as TabGroup }] : []),
     ...(isFeatureEnabled('themesEnabled') ? [{ id: 'themes' as Tab, label: 'Themes', icon: tabIcons.themes, group: 'system' as TabGroup, experimental: true }] : []),
     ...(isFeatureEnabled('pluginsEnabled') ? [{ id: 'plugins' as Tab, label: 'Plugins', icon: tabIcons.plugins, group: 'system' as TabGroup, experimental: true }] : []),
@@ -203,7 +198,6 @@ export default function SettingsPage() {
       {activeTab === 'templates' && <TemplateSettings />}
       {activeTab === 'folders' && <FolderSettings />}
       {activeTab === 'keywords' && <KeywordSettings />}
-      {activeTab === 'files' && <FilesSettingsComponent />}
       {activeTab === 'sidebar_apps' && <SidebarAppsSettings />}
       {activeTab === 'themes' && <ThemesSettings />}
       {activeTab === 'plugins' && <PluginsSettings />}

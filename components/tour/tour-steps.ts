@@ -171,14 +171,6 @@ export const DEMO_TOUR_STEPS: TourStep[] = [
     demoOnly: true,
   },
   {
-    id: "nav-files",
-    target: '[data-tour="nav-files"]',
-    titleKey: "tour.files_title",
-    descriptionKey: "tour.files_desc",
-    placement: "right",
-    demoOnly: true,
-  },
-  {
     id: "demo-banner",
     target: '[data-tour="demo-banner"]',
     titleKey: "tour.demo_banner_title",
@@ -210,7 +202,6 @@ export function getTourSteps(options: {
 
   if (options.isDemoMode) {
     const demoSteps = DEMO_TOUR_STEPS.filter((s) => {
-      if (s.id === "nav-files" && !options.supportsWebDAV) return false;
       if ((s.id === "calendar-view" || s.id === "create-event" || s.id === "event-modal") && !options.supportsCalendar) return false;
       return true;
     });
