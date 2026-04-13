@@ -182,6 +182,20 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
         }
 
         if (firstSuccess) {
+          // Sequential logins leave the last account active. Switch back
+          // to the default so the user sees their primary inbox first.
+          const defaultEntry = defaultFirst[0];
+          if (defaultEntry && defaultFirst.length > 1) {
+            const defaultCreds = decodeBasicToken(defaultEntry.token);
+            if (defaultCreds) {
+              const defaultId = generateAccountId(defaultCreds.username, config.jmapServerUrl!);
+              const currentActive = useAuthStore.getState().activeAccountId;
+              if (currentActive !== defaultId) {
+                await useAuthStore.getState().switchAccount(defaultId);
+              }
+            }
+          }
+
           notifyParent("sso:auth-success", { accounts: defaultFirst.length });
         } else {
           notifyParent("sso:auth-failure", { error: "all_accounts_failed" });

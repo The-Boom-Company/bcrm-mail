@@ -1066,6 +1066,35 @@ export const useAuthStore = create<AuthState>()(
             return;
           }
 
+          // Embedded portal accounts (basic + !rememberMe) are re-authenticated
+          // by portal:setup-accounts. Don't evict — keep the entry so it
+          // reappears when the portal delivers fresh credentials.
+          if (targetAccount.authMode === 'basic' && !targetAccount.rememberMe) {
+            if (state.activeAccountId && state.activeAccountId !== accountId) {
+              const prevClient = clients.get(state.activeAccountId);
+              const prevAccount = accountStore.getAccountById(state.activeAccountId);
+              if (prevClient && prevAccount) {
+                restoreAccount(state.activeAccountId);
+                accountStore.setActiveAccount(state.activeAccountId);
+                set({
+                  isLoading: false,
+                  serverUrl: prevAccount.serverUrl,
+                  username: prevAccount.username,
+                  client: prevClient,
+                  ...getClientRateLimitState(prevClient),
+                  authMode: prevAccount.authMode,
+                  rememberMe: prevAccount.rememberMe,
+                  connectionLost: false,
+                  error: null,
+                  activeAccountId: state.activeAccountId,
+                });
+                return;
+              }
+            }
+            set({ isLoading: false });
+            return;
+          }
+
           // Cannot restore — remove the stale account and redirect to login
           evictAccount(accountId);
           accountStore.removeAccount(accountId);
