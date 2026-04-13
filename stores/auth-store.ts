@@ -278,6 +278,7 @@ let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 let refreshPromise: Promise<string | null> | null = null;
 
 // Multi-account state: per-account JMAP clients and refresh timers
+let switchGeneration = 0;
 const clients = new Map<string, JMAPClient>();
 const refreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const refreshPromises = new Map<string, Promise<string | null>>();
@@ -989,6 +990,10 @@ export const useAuthStore = create<AuthState>()(
         const targetAccount = accountStore.getAccountById(accountId);
         if (!targetAccount) return;
 
+        // Generation counter prevents overlapping async switches from
+        // corrupting snapshots or applying stale results.
+        const gen = ++switchGeneration;
+
         // Null out the client immediately so the page doesn't fire data-loading
         // effects with the old client while stores are being cleared.
         set({ isLoading: true, client: null, isRateLimited: false, rateLimitUntil: null });
@@ -1128,6 +1133,10 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
+        // A newer switch was requested while this one was in flight — bail out
+        // so the latest switch wins and we don't corrupt state.
+        if (gen !== switchGeneration) return;
+
         // Restore cached state or fetch fresh
         const restored = restoreAccount(accountId);
         accountStore.setActiveAccount(accountId);
@@ -1153,12 +1162,13 @@ export const useAuthStore = create<AuthState>()(
           primaryIdentity: restoredPrimary,
         });
 
-        if (!restored) {
-          // Fetch fresh data
+        if (!restored && gen === switchGeneration) {
           try {
             const { identities, primaryIdentity } = loadIdentities(await targetClient.getIdentities(), targetAccount.username);
-            set({ identities, primaryIdentity });
-            initializeFeatureStores(targetClient);
+            if (gen === switchGeneration) {
+              set({ identities, primaryIdentity });
+              initializeFeatureStores(targetClient);
+            }
           } catch (err) {
             debug.error(`Failed to load data for ${accountId}:`, err);
           }
