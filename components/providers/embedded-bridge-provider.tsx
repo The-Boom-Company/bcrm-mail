@@ -99,9 +99,14 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
     /**
      * Bulk account setup: logs into each account sequentially so
      * Bulwark's native multi-account switcher has all accounts
-     * registered. The default (or first) account becomes active.
+     * registered. Activates the portal-requested account (or default).
+     *
+     * Portal-authoritative identity normalization: in embedded mode,
+     * the CRM database is the source of truth for canonical email
+     * addresses. After each login, identities with the same local part
+     * are normalized to the portal's canonical email.
      */
-    const handleSetupAccounts = async (accounts: PortalAccount[]) => {
+    const handleSetupAccounts = async (accounts: PortalAccount[], activeAccountEmail: string | null) => {
       if (loginInFlight.current || !accounts?.length) return;
       loginInFlight.current = true;
 
@@ -121,10 +126,6 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
 
         const existingAccounts = useAccountStore.getState().accounts;
 
-        // Purge stale account entries left over from a previous JMAP URL
-        // (e.g. mail.bcrm.one → bcrm.app). Without this, the same mailbox
-        // gets two entries with different IDs and switchAccount fails
-        // because the stale entry has no live client.
         for (const account of defaultFirst) {
           const creds = decodeBasicToken(account.token);
           if (!creds) continue;
@@ -146,17 +147,9 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
           }
 
           const accountId = generateAccountId(creds.username, config.jmapServerUrl);
-          const alreadyRegistered = existingAccounts.some(
-            (a) => a.id === accountId || a.email === account.email,
-          );
 
-          // An account entry may exist in the persisted store from a previous
-          // page load, but without a live JMAP client it's useless.  Only skip
-          // login() when the auth store already has a connected client.
-          const hasLiveClient =
-            alreadyRegistered &&
-            useAuthStore.getState().isAuthenticated &&
-            !!useAuthStore.getState().client;
+          // Check per-account client, not the global active client
+          const hasLiveClient = !!useAuthStore.getState().getClientForAccount(accountId);
 
           if (hasLiveClient) {
             if (!firstSuccess) firstSuccess = true;
@@ -185,13 +178,19 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
                 label: account.displayName || account.email,
               });
 
+              // Portal-authoritative identity normalization: replace identity
+              // emails that are variants of the canonical email (same local
+              // part, different domain) with the portal's canonical address.
               const identities = useIdentityStore.getState().identities;
               if (identities.length > 0) {
+                const canonicalLocal = account.email.split('@')[0]!;
                 const patched = identities.map((id) => {
-                  if (!id.email || id.email === creds.username) {
-                    return { ...id, email: account.email };
-                  }
-                  return id;
+                  const idLocal = id.email?.split('@')[0];
+                  const isVariant =
+                    !id.email ||
+                    id.email === creds.username ||
+                    idLocal === canonicalLocal;
+                  return isVariant ? { ...id, email: account.email } : id;
                 });
                 useIdentityStore.getState().setIdentities(patched);
               }
@@ -208,25 +207,26 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
         }
 
         if (firstSuccess) {
-          // Sequential logins leave the last account active. Directly
-          // activate the default account's client without going through
-          // the full switchAccount machinery (which can race with user clicks).
-          const defaultEntry = defaultFirst[0];
-          if (defaultEntry && defaultFirst.length > 1) {
-            const defaultCreds = decodeBasicToken(defaultEntry.token);
-            if (defaultCreds) {
-              const defaultId = generateAccountId(defaultCreds.username, config.jmapServerUrl!);
+          // Activate the portal-requested account, or fall back to default
+          const activateEntry = activeAccountEmail
+            ? defaultFirst.find((a) => a.email === activeAccountEmail) || defaultFirst[0]
+            : defaultFirst[0];
+
+          if (activateEntry && defaultFirst.length > 1) {
+            const activateCreds = decodeBasicToken(activateEntry!.token);
+            if (activateCreds) {
+              const activateId = generateAccountId(activateCreds.username, config.jmapServerUrl!);
               const currentActive = useAuthStore.getState().activeAccountId;
-              if (currentActive !== defaultId) {
-                const defaultClient = useAuthStore.getState().getClientForAccount(defaultId);
-                if (defaultClient) {
-                  const defaultAcct = useAccountStore.getState().getAccountById(defaultId);
-                  useAccountStore.getState().setActiveAccount(defaultId);
+              if (currentActive !== activateId) {
+                const targetClient = useAuthStore.getState().getClientForAccount(activateId);
+                if (targetClient) {
+                  const targetAcct = useAccountStore.getState().getAccountById(activateId);
+                  useAccountStore.getState().setActiveAccount(activateId);
                   useAuthStore.setState({
-                    activeAccountId: defaultId,
-                    client: defaultClient,
-                    serverUrl: defaultAcct?.serverUrl ?? config.jmapServerUrl!,
-                    username: defaultAcct?.username ?? defaultCreds.username,
+                    activeAccountId: activateId,
+                    client: targetClient,
+                    serverUrl: targetAcct?.serverUrl ?? config.jmapServerUrl!,
+                    username: targetAcct?.username ?? activateCreds.username,
                     isAuthenticated: true,
                     isLoading: false,
                   });
@@ -251,7 +251,8 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
       switch (msg.type) {
         case "portal:setup-accounts": {
           const accounts = msg.accounts as PortalAccount[] | undefined;
-          if (accounts) handleSetupAccounts(accounts);
+          const activeAccount = (msg.activeAccount as string | null) || null;
+          if (accounts) handleSetupAccounts(accounts, activeAccount);
           break;
         }
 

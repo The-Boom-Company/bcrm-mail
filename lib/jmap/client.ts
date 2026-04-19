@@ -3628,6 +3628,8 @@ export class JMAPClient implements IJMAPClient {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
+        // W3C SSE spec: lines may end with CR, LF, or CRLF. Normalize to LF.
+        buffer = buffer.replace(/\r\n|\r/g, '\n');
         const parts = buffer.split('\n\n');
         buffer = parts.pop() || '';
 

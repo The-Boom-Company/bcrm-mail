@@ -45,6 +45,7 @@ import { Search, Filter, ChevronDown, X, Paperclip, Star, Mail, MailOpen, Rotate
 import { ResizeHandle } from "@/components/layout/resize-handle";
 import { Button } from "@/components/ui/button";
 import { useConfig } from "@/hooks/use-config";
+import { usePushSubscription } from "@/hooks/use-push-subscription";
 import { usePluginStore } from "@/stores/plugin-store";
 
 
@@ -122,7 +123,6 @@ export default function Home() {
     isLoadingEmail,
     setLoadingEmail,
     setPushConnected,
-    handleStateChange,
     clearNewEmailNotification,
     markAsSpam,
     undoSpam,
@@ -315,63 +315,37 @@ export default function Home() {
     }
   }, [initialCheckDone, isAuthenticated, authLoading]);
 
+  // Push subscription: independent lifecycle, survives mailbox list changes
+  const pushConnected = usePushSubscription(client, isAuthenticated);
+  useEffect(() => { setPushConnected(pushConnected); }, [pushConnected, setPushConnected]);
+
   // Load mailboxes and emails when authenticated (only if not already loaded)
   useEffect(() => {
     if (isAuthenticated && client && mailboxes.length === 0) {
       const loadData = async () => {
         try {
-          // First fetch mailboxes and quota (inbox will be auto-selected in fetchMailboxes)
           await Promise.all([
             fetchMailboxes(client),
             fetchQuota(client)
           ]);
 
-          // Get the selected mailbox (should be inbox by default)
           const state = useEmailStore.getState();
           const selectedMailboxId = state.selectedMailbox;
 
-          // Fetch emails for the selected mailbox
           if (selectedMailboxId) {
             await fetchEmails(client, selectedMailboxId);
           } else {
             await fetchEmails(client);
           }
 
-          // Fetch tag counts
           fetchTagCounts(client);
-
-          // Setup push notifications after successful data load
-          try {
-            // Register state change callback
-            client.onStateChange((change) => handleStateChange(change, client));
-
-            // Start receiving push notifications
-            const pushEnabled = client.setupPushNotifications();
-
-            if (pushEnabled) {
-              setPushConnected(true);
-              debug.log('[Push] Push notifications successfully enabled');
-            } else {
-              debug.log('[Push] Push notifications not available on this server');
-            }
-          } catch (error) {
-            // Push notifications are optional - don't break the app if they fail
-            debug.log('[Push] Failed to setup push notifications:', error);
-          }
         } catch (error) {
           console.error('Error loading email data:', error);
         }
       };
       loadData();
     }
-
-    // Cleanup push notifications on unmount
-    return () => {
-      if (client) {
-        client.closePushNotifications();
-      }
-    };
-  }, [isAuthenticated, client, mailboxes.length, fetchMailboxes, fetchEmails, fetchQuota, fetchTagCounts, handleStateChange, setPushConnected]);
+  }, [isAuthenticated, client, mailboxes.length, fetchMailboxes, fetchEmails, fetchQuota, fetchTagCounts]);
 
   // Auto-fetch full email content when an email is auto-selected (e.g. after delete/archive)
   useEffect(() => {
