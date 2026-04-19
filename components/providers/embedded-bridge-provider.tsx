@@ -66,7 +66,7 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
     useAccountStore.setState({ accounts: [], activeAccountId: null, defaultAccountId: null });
     useAuthStore.setState({
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true,
       client: null,
       serverUrl: null,
       username: null,
