@@ -279,6 +279,7 @@ let refreshPromise: Promise<string | null> | null = null;
 
 // Multi-account state: per-account JMAP clients and refresh timers
 const clients = new Map<string, JMAPClient>();
+let switchInProgress = false;
 const refreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const refreshPromises = new Map<string, Promise<string | null>>();
 
@@ -982,6 +983,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       switchAccount: async (accountId: string) => {
+        if (switchInProgress) return;
         const state = get();
         if (state.activeAccountId === accountId) return;
 
@@ -989,25 +991,21 @@ export const useAuthStore = create<AuthState>()(
         const targetAccount = accountStore.getAccountById(accountId);
         if (!targetAccount) return;
 
-        // Null out the client immediately so the page doesn't fire data-loading
-        // effects with the old client while stores are being cleared.
+        switchInProgress = true;
+        try {
         set({ isLoading: true, client: null, isRateLimited: false, rateLimitUntil: null });
 
-        // Snapshot current account
         if (state.activeAccountId) {
           snapshotAccount(state.activeAccountId);
         }
 
-        // Clear current stores
         clearAllStores();
         useSettingsStore.getState().disableSync();
 
-        // Get or create client for target account
         let targetClient = clients.get(accountId);
         let targetRestoreRateLimited = false;
 
         if (!targetClient) {
-          // Client not connected — try to restore
           try {
             if (targetAccount.authMode === 'oauth') {
               const res = await fetch(`/api/auth/token?slot=${targetAccount.cookieSlot}`, { method: 'PUT' });
@@ -1016,7 +1014,10 @@ export const useAuthStore = create<AuthState>()(
                 const refreshFn = get().refreshAccessToken;
                 targetClient = JMAPClient.withBearer(targetAccount.serverUrl, access_token, targetAccount.username, () => refreshFn());
                 bindClientStatusHandlers(targetClient, set, get, accountId);
-                await targetClient.connect();
+                await Promise.race([
+                  targetClient.connect(),
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('Connect timeout')), 10_000)),
+                ]);
                 clients.set(accountId, targetClient);
                 scheduleRefresh(expires_in, get().refreshAccessToken, accountId);
               }
@@ -1026,7 +1027,10 @@ export const useAuthStore = create<AuthState>()(
                 const { serverUrl, username, password } = await res.json();
                 targetClient = new JMAPClient(serverUrl, username, password);
                 bindClientStatusHandlers(targetClient, set, get, accountId);
-                await targetClient.connect();
+                await Promise.race([
+                  targetClient.connect(),
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('Connect timeout')), 10_000)),
+                ]);
                 clients.set(accountId, targetClient);
               }
             }
@@ -1066,9 +1070,6 @@ export const useAuthStore = create<AuthState>()(
             return;
           }
 
-          // Embedded portal accounts (basic + !rememberMe) are re-authenticated
-          // by portal:setup-accounts. Don't evict — keep the entry so it
-          // reappears when the portal delivers fresh credentials.
           if (targetAccount.authMode === 'basic' && !targetAccount.rememberMe) {
             if (state.activeAccountId && state.activeAccountId !== accountId) {
               const prevClient = clients.get(state.activeAccountId);
@@ -1095,12 +1096,10 @@ export const useAuthStore = create<AuthState>()(
             return;
           }
 
-          // Cannot restore — remove the stale account and redirect to login
           evictAccount(accountId);
           accountStore.removeAccount(accountId);
           fetch(`/api/auth/session?slot=${targetAccount.cookieSlot}`, { method: 'DELETE' }).catch(() => {});
 
-          // Restore the previous account if still available
           if (state.activeAccountId && state.activeAccountId !== accountId) {
             const prevClient = clients.get(state.activeAccountId);
             const prevAccount = accountStore.getAccountById(state.activeAccountId);
@@ -1123,17 +1122,14 @@ export const useAuthStore = create<AuthState>()(
           }
 
           set({ isLoading: false });
-          // Redirect to login so the user can re-authenticate
           replaceWindowLocation(getLocaleLoginPath());
           return;
         }
 
-        // Restore cached state or fetch fresh
         const restored = restoreAccount(accountId);
         accountStore.setActiveAccount(accountId);
         accountStore.updateAccount(accountId, { isConnected: true, hasError: false, errorMessage: undefined });
 
-        // Build identity state up front so the name updates atomically
         const restoredIdentities = restored ? useIdentityStore.getState().identities : [];
         const restoredPrimary = restoredIdentities[0] ?? null;
 
@@ -1163,13 +1159,15 @@ export const useAuthStore = create<AuthState>()(
           }
         }
 
-        // Sync settings
         fetchConfig().then(config => {
           if (!config.settingsSyncEnabled) return;
           useSettingsStore.getState().loadFromServer(targetAccount.username, targetAccount.serverUrl).finally(() => {
             useSettingsStore.getState().enableSync(targetAccount.username, targetAccount.serverUrl);
           });
         }).catch(() => {});
+        } finally {
+          switchInProgress = false;
+        }
       },
 
       checkAuth: async () => {

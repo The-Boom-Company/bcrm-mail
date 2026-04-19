@@ -319,33 +319,37 @@ export default function Home() {
   const pushConnected = usePushSubscription(client, isAuthenticated);
   useEffect(() => { setPushConnected(pushConnected); }, [pushConnected, setPushConnected]);
 
-  // Load mailboxes and emails when authenticated (only if not already loaded)
+  // Load mailboxes and emails when authenticated. Re-fetches on every client
+  // change (account switch) so the inbox always shows fresh data, even when
+  // restoreAccount populated mailboxes from a cached snapshot.
+  const lastLoadedClientRef = useRef<unknown>(null);
   useEffect(() => {
-    if (isAuthenticated && client && mailboxes.length === 0) {
-      const loadData = async () => {
-        try {
-          await Promise.all([
-            fetchMailboxes(client),
-            fetchQuota(client)
-          ]);
+    if (!isAuthenticated || !client || client === lastLoadedClientRef.current) return;
+    lastLoadedClientRef.current = client;
 
-          const state = useEmailStore.getState();
-          const selectedMailboxId = state.selectedMailbox;
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          fetchMailboxes(client),
+          fetchQuota(client)
+        ]);
 
-          if (selectedMailboxId) {
-            await fetchEmails(client, selectedMailboxId);
-          } else {
-            await fetchEmails(client);
-          }
+        const state = useEmailStore.getState();
+        const selectedMailboxId = state.selectedMailbox;
 
-          fetchTagCounts(client);
-        } catch (error) {
-          console.error('Error loading email data:', error);
+        if (selectedMailboxId) {
+          await fetchEmails(client, selectedMailboxId);
+        } else {
+          await fetchEmails(client);
         }
-      };
-      loadData();
-    }
-  }, [isAuthenticated, client, mailboxes.length, fetchMailboxes, fetchEmails, fetchQuota, fetchTagCounts]);
+
+        fetchTagCounts(client);
+      } catch (error) {
+        console.error('Error loading email data:', error);
+      }
+    };
+    loadData();
+  }, [isAuthenticated, client, fetchMailboxes, fetchEmails, fetchQuota, fetchTagCounts]);
 
   // Auto-fetch full email content when an email is auto-selected (e.g. after delete/archive)
   useEffect(() => {
