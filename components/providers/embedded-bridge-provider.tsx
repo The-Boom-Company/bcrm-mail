@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { generateAccountId } from "@/lib/account-utils";
 import { isEmbedded, listenFromParent, notifyParent } from "@/lib/iframe-bridge";
 import { getPathPrefix, getLocaleFromPath } from "@/lib/browser-navigation";
@@ -12,6 +12,9 @@ import { useThemeStore } from "@/stores/theme-store";
 import { injectThemeCSS, removeThemeCSS } from "@/lib/theme-loader";
 import { useConfig, fetchConfig } from "@/hooks/use-config";
 import { debug } from "@/lib/debug";
+
+let embeddedCleanupDone = false;
+const STALE_STORAGE_KEYS = ['auth-storage', 'account-registry'];
 
 type SignaturePair = {
   html: string;
@@ -48,6 +51,29 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
   const logout = useAuthStore((s) => s.logout);
   const login = useAuthStore((s) => s.login);
   const loginInFlight = useRef(false);
+
+  // Wipe stale persisted auth state BEFORE page-level checkAuth() runs.
+  // useLayoutEffect fires before children's useEffect, preventing checkAuth
+  // from finding old standalone-mode accounts and attempting doomed restores.
+  useLayoutEffect(() => {
+    if (embeddedCleanupDone || !isEmbedded()) return;
+    embeddedCleanupDone = true;
+
+    debug.log("Embedded mode: clearing stale auth/account storage");
+    for (const key of STALE_STORAGE_KEYS) {
+      try { localStorage.removeItem(key); } catch { /* noop */ }
+    }
+    useAccountStore.setState({ accounts: [], activeAccountId: null, defaultAccountId: null });
+    useAuthStore.setState({
+      isAuthenticated: false,
+      isLoading: false,
+      client: null,
+      serverUrl: null,
+      username: null,
+      error: null,
+      activeAccountId: null,
+    });
+  }, []);
 
   useEffect(() => {
     if (!embeddedMode || !isEmbedded()) return;
@@ -273,6 +299,7 @@ export function EmbeddedBridgeProvider({ children }: { children: React.ReactNode
           break;
         }
 
+        case "portal:logout":
         case "sso:trigger-logout":
           logout();
           break;

@@ -360,7 +360,7 @@ function performFullLogout(set: (state: Partial<AuthState>) => void): void {
   // Remove persisted state AFTER the final set() so the persist middleware
   // doesn't re-write stale values.
   try { localStorage.removeItem('auth-storage'); } catch { /* noop */ }
-  try { localStorage.removeItem('account-storage'); } catch { /* noop */ }
+  try { localStorage.removeItem('account-registry'); } catch { /* noop */ }
 }
 
 export const useAuthStore = create<AuthState>()(
