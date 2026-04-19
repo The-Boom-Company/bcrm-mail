@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { Mail, Calendar, BookUser, Settings, Keyboard, Plus, Shield } from "lucide-react";
+import { Mail, Calendar, BookUser, Settings, Keyboard, Plus, RefreshCw, Shield } from "lucide-react";
 import { AccountSwitcher } from "./account-switcher";
 import { icons as lucideIcons, type LucideIcon } from "lucide-react";
 import { useConfig } from "@/hooks/use-config";
@@ -159,7 +159,8 @@ export function NavigationRail({
   const pathname = usePathname();
   const { appLogoLightUrl, appLogoDarkUrl } = useConfig();
   const resolvedTheme = useThemeStore((s) => s.resolvedTheme);
-  const { mailboxes } = useEmailStore();
+  const { mailboxes, refreshCurrentMailbox, fetchMailboxes } = useEmailStore();
+  const [isSyncing, setIsSyncing] = useState(false);
   const sidebarApps = useSettingsStore((s) => s.sidebarApps);
   const sidebarAppsEnabled = usePolicyStore((s) => s.isFeatureEnabled('sidebarAppsEnabled'));
   const visibleSidebarApps = sidebarAppsEnabled ? sidebarApps : [];
@@ -204,6 +205,19 @@ export function NavigationRail({
     { id: "calendar", icon: Calendar, labelKey: "calendar", href: "/calendar" },
     { id: "contacts", icon: BookUser, labelKey: "contacts", href: "/contacts" },
   ];
+
+  const handleSync = useCallback(async () => {
+    const { client } = useAuthStore.getState();
+    if (!client || isSyncing) return;
+    setIsSyncing(true);
+    try {
+      await Promise.all([refreshCurrentMailbox(client), fetchMailboxes(client)]);
+    } catch {
+      // Sync failed silently — will retry on next poll
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [isSyncing, refreshCurrentMailbox, fetchMailboxes]);
 
   const handleNavClick = (_item: NavItem, _e: React.MouseEvent) => {
     if (activeAppId) onCloseInlineApp?.();
@@ -403,6 +417,25 @@ export function NavigationRail({
             </Link>
           );
         })}
+
+        {/* Sync / Refresh */}
+        <button
+          onClick={handleSync}
+          disabled={isSyncing}
+          className={cn(
+            "relative flex items-center gap-2.5 rounded-md transition-colors duration-150",
+            collapsed
+              ? "justify-center w-10 h-10"
+              : "px-2.5 text-sm",
+            "max-lg:min-h-[44px]",
+            "text-muted-foreground hover:bg-muted hover:text-foreground"
+          )}
+          title={t("sync") || "Sync"}
+          style={collapsed ? undefined : { paddingBlock: 'var(--density-sidebar-py)' }}
+        >
+          <RefreshCw className={cn("w-[18px] h-[18px] flex-shrink-0", isSyncing && "animate-spin")} />
+          {!collapsed && <span className="truncate">{t("sync") || "Sync"}</span>}
+        </button>
 
         {/* Custom sidebar apps */}
         {visibleSidebarApps.length > 0 && (

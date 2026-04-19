@@ -3573,8 +3573,10 @@ export class JMAPClient implements IJMAPClient {
   setupPushNotifications(): boolean {
     const eventSourceUrl = this.getEventSourceUrl();
     if (eventSourceUrl) {
+      console.info('[JMAP Push] SSE eventSourceUrl available, connecting:', eventSourceUrl);
       this.connectSSE(eventSourceUrl);
     } else {
+      console.info('[JMAP Push] No eventSourceUrl in session, falling back to 3s polling');
       this.startPollingFallback();
     }
     return true;
@@ -3598,9 +3600,11 @@ export class JMAPClient implements IJMAPClient {
       signal: this.sseAbortController.signal,
     }).then(response => {
       if (!response.ok || !response.body) {
+        console.warn('[JMAP Push] SSE response not ok or no body, status:', response.status, '— falling back to polling');
         this.fallbackToPolling();
         return;
       }
+      console.info('[JMAP Push] SSE stream connected successfully');
       this.readSSEStream(response.body);
     }).catch((error) => {
       if (error instanceof RateLimitError) {
@@ -3608,6 +3612,7 @@ export class JMAPClient implements IJMAPClient {
         this.scheduleSSEReconnect();
         return;
       }
+      console.warn('[JMAP Push] SSE connection failed:', error, '— falling back to polling');
       this.fallbackToPolling();
     });
   }
