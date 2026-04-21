@@ -264,7 +264,8 @@ export default function LoginPage() {
     );
   }
 
-  if (_embeddedMode && !isAuthenticated) {
+  const isActuallyEmbedded = _embeddedMode && typeof window !== 'undefined' && window.self !== window.top;
+  if (isActuallyEmbedded && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/30">
         <div className="w-full max-w-sm mx-auto px-4 text-center" role="status">
